@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.32804.182
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EkoMon.WebApp", "EkoMon.WebApp\EkoMon.WebApp.csproj", "{4FB928AD-0E0C-450E-A306-E59265F85EDC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EkoMon.WebApp", "EkoMon.WebApp\EkoMon.WebApp.csproj", "{ACF876B3-B7E1-4F5E-9B02-E950FB9A78FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4FB928AD-0E0C-450E-A306-E59265F85EDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4FB928AD-0E0C-450E-A306-E59265F85EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4FB928AD-0E0C-450E-A306-E59265F85EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4FB928AD-0E0C-450E-A306-E59265F85EDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ACF876B3-B7E1-4F5E-9B02-E950FB9A78FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ACF876B3-B7E1-4F5E-9B02-E950FB9A78FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ACF876B3-B7E1-4F5E-9B02-E950FB9A78FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ACF876B3-B7E1-4F5E-9B02-E950FB9A78FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
