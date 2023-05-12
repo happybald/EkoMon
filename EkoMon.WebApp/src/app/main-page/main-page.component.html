@@ -1,0 +1,18 @@
+<div style="height: 100%;
+    width: 100%;
+    position: relative;
+    outline: none;"
+     leaflet
+     [leafletOptions]="options"
+     (resize)="resize($event)"
+     (leafletMapReady)="onMapReady($event)"
+     (leafletClick)="mapClick($event)"
+>
+    <div style="z-index: 999; position: relative; top:80px; left: 15px; width: fit-content; justify-content: center; display: flex; flex-direction: column;">
+        <button (click)="toggleAddMarker($event)">{{ addMode ? "Cancle" : "Add marker" }}</button>
+    </div>
+    
+    <div style="z-index: 999;position: absolute; top: 0; width: 100%; display: flex; justify-content: center">
+        <span *ngIf="addMode" style="color: red; font-weight: bold; font-size: 16px">Click to add new marker</span>
+    </div>
+</div>
