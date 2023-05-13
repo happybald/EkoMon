@@ -40,15 +40,18 @@ export class InfoPopupDialog implements OnInit {
             }
         }
     }
-    
+
     close() {
         this.dialogRef.close();
     }
 
     save() {
         if (this.location.id == 0) {
-            this.apiClient.postLocation(this.location).subscribe(_ => {
-                this.close();
+            this.apiClient.postLocation(this.location).subscribe(shortLocation => {
+                this.location.id = shortLocation.id;
+                this.apiClient.updateLocation(this.location).subscribe(_ => {
+                    this.close();
+                })
             })
         } else {
             this.apiClient.updateLocation(this.location).subscribe(_ => {
