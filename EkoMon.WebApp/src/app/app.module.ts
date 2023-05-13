@@ -12,6 +12,12 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {MatDialogModule} from "@angular/material/dialog";
 import {MatButtonModule} from "@angular/material/button";
 import {InfoPopupDialog} from "./info-popup-dialog/info-popup-dialog.component";
+import {MatInputModule} from "@angular/material/input";
+import {MatTableModule} from "@angular/material/table";
+import {LocationParameterDialog} from "./location-parameter-dialog/location-parameter-dialog.component";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatSelectModule} from "@angular/material/select";
+import {NgSelectModule} from "@ng-select/ng-select";
 
 
 @NgModule({
@@ -23,16 +29,22 @@ import {InfoPopupDialog} from "./info-popup-dialog/info-popup-dialog.component";
         BrowserAnimationsModule,
         MatDialogModule,
         MatButtonModule,
+        NgSelectModule,
         FormsModule,
         RouterModule.forRoot([
             {path: '', component: MainPageComponent},
-        ])
+        ]),
+        MatInputModule,
+        MatTableModule,
+        MatAutocompleteModule,
+        MatSelectModule
     ],
     declarations: [
         AppComponent,
         TopBarComponent,
         InfoPopupDialog,
         MainPageComponent,
+        LocationParameterDialog,
     ],
     bootstrap: [
         AppComponent

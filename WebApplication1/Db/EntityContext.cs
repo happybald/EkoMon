@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-namespace EkoMon.DomainModel.Db
+namespace WebApplication1.Db
 {
     public class EntityContext : DbContext
     {

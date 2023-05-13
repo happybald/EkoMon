@@ -9,7 +9,7 @@
      (leafletClick)="mapClick($event)"
 >
     <div style="z-index: 999; position: relative; top:80px; left: 15px; width: fit-content; justify-content: center; display: flex; flex-direction: column;">
-        <button (click)="toggleAddMarker($event)">{{ addMode ? "Cancle" : "Add marker" }}</button>
+        <button mat-flat-button color="{{addMode ? 'warn' : 'primary'}}" (click)="toggleAddMarker($event)">{{ addMode ? "Cancle" : "Add marker" }}</button>
     </div>
     
     <div style="z-index: 999;position: absolute; top: 0; width: 100%; display: flex; justify-content: center">

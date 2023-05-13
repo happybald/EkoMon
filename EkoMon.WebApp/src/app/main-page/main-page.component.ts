@@ -1,23 +1,13 @@
 import {Component, NgZone, OnInit} from '@angular/core';
-import {
-    latLng,
-    MapOptions,
-    tileLayer,
-    Map,
-    marker,
-    MarkerOptions,
-    tooltip,
-    TooltipOptions,
-    LeafletMouseEvent
-} from "leaflet";
+import {latLng, MapOptions, tileLayer, Map, marker, LeafletMouseEvent, LatLng, Marker, LayerGroup, layerGroup, icon, Icon} from "leaflet";
 import {ApiClientModule} from "../api.module";
-import {MatDialog, MatDialogConfig} from "@angular/material/dialog";
+import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material/dialog";
 import {InfoPopupDialog, InfoPopupDialogModel} from "../info-popup-dialog/info-popup-dialog.component";
 
 @Component({
     selector: 'app-main-page',
     templateUrl: './main-page.component.html',
-    styleUrls: ['./main-page.component.css']
+    styleUrls: ['./main-page.component.scss']
 })
 export class MainPageComponent implements OnInit {
 
@@ -30,10 +20,10 @@ export class MainPageComponent implements OnInit {
     };
 
     map: Map = null!;
-
+    markersGroup: LayerGroup = null!;
     addMode: boolean = false;
 
-    constructor(private client: ApiClientModule.ApiClient, private dialog: MatDialog, private zone: NgZone) {
+    constructor(private apiClient: ApiClientModule.ApiClient, private dialog: MatDialog, private zone: NgZone) {
     }
 
 
@@ -42,10 +32,17 @@ export class MainPageComponent implements OnInit {
 
     onMapReady(map: Map) {
         this.map = map;
-        this.client.api().subscribe();
-        let newMarker = marker([50.43501, 30.51093]);
-        newMarker.bindTooltip(tooltip({content: "Lol"} as TooltipOptions));
-        newMarker.addTo(map);
+        this.markersGroup = layerGroup().addTo(this.map);
+        this.updateData();
+    }
+
+    updateData() {
+        this.markersGroup.clearLayers();
+        this.apiClient.getLocations().subscribe(locations => {
+            for (const location of locations) {
+                this.createNewMarker(location);
+            }
+        });
     }
 
     resize($event: UIEvent) {
@@ -62,27 +59,67 @@ export class MainPageComponent implements OnInit {
 
     mapClick($event: LeafletMouseEvent) {
         if (this.addMode) {
-            const title = $event.latlng.toString();
-            let newMarker = marker($event.latlng, {
-                title: title,
-            });
-            newMarker.addTo(this.map);
-            newMarker.on("click", e => this.markerClickEventHandler(e))
+            this.createNewMarker($event.latlng);
         }
         this.addMode = false;
     }
 
-    private markerClickEventHandler($event: LeafletMouseEvent) {
+    createNewMarker(baseOn: ApiClientModule.LocationShortModel | LatLng) {
+
+        let newMarker: Marker = null!;
+
+        if (baseOn instanceof ApiClientModule.LocationShortModel) {
+            newMarker = marker([baseOn.latitude, baseOn.longitude], {
+                title: baseOn.title,
+                attribution: baseOn.id.toString(),
+                icon: icon({
+                    ...Icon.Default.prototype.options,
+                    iconUrl: 'assets/marker-icon.png',
+                    iconRetinaUrl: 'assets/marker-icon-2x.png',
+                    shadowUrl: 'assets/marker-shadow.png'
+                })
+            });
+        }
+        if (baseOn instanceof LatLng) {
+            newMarker = marker(baseOn, {
+                title: "New marker",
+                icon: icon({
+                    ...Icon.Default.prototype.options,
+                    iconUrl: 'assets/marker-icon.png',
+                    iconRetinaUrl: 'assets/marker-icon-2x.png',
+                    shadowUrl: 'assets/marker-shadow.png'
+                })
+            });
+        }
+        newMarker.bindTooltip(newMarker.options.title!);
+        newMarker.addTo(this.markersGroup);
+        newMarker.on("click", e => this.markerClickEventHandler(e))
+        if (baseOn instanceof LatLng) {
+            newMarker.getElement()?.click();
+        }
+    }
+
+
+    markerClickEventHandler($event: LeafletMouseEvent) {
         const title = $event.target.options.title;
+        const id: number | undefined = $event.target.options.attribution as number | undefined;
         this.zone.run(() => {
             const dialogConfig = {
-                data: {title: title} as InfoPopupDialogModel,
+                width: "1000px",
+                closeOnNavigation: false,
+                disableClose: true,
+                data: {
+                    id: id,
+                    title: title,
+                    latitude: $event.latlng.lat,
+                    longitude: $event.latlng.lng,
+                } as InfoPopupDialogModel,
             } as MatDialogConfig;
-            const dialogRef = this.dialog.open(InfoPopupDialog, dialogConfig);
+            const dialogRef = this.dialog.open(InfoPopupDialog, dialogConfig) as MatDialogRef<InfoPopupDialog, ApiClientModule.LocationModel>;
 
-            dialogRef.afterClosed().subscribe(
-                data => console.log("Dialog output:", data)
-            );
+            dialogRef.afterClosed().subscribe(r => {
+                this.updateData();
+            });
         });
     }
 }

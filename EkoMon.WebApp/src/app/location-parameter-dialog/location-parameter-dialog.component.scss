@@ -1,0 +1,14 @@
+
+.centerDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.mat-table-custom{
+  display: block;
+  
+  tr{
+    max-height: 20px !important;
+  }
+}
