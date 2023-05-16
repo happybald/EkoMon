@@ -12,6 +12,16 @@ namespace EkoMon.DomainModel.Db
         public Parameter Parameter{ get; set; } = null!;
         
         public double Value { get; set; }
-        
+
+
+        public LocationParameter()
+        {
+        }
+        public LocationParameter(int parameterId, double value)
+        {
+            ParameterId = parameterId;
+            Value = value;
+        }
+
     }
 }

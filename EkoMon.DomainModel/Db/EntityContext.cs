@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection;
+using System.Text.Json;
+using EkoMon.DomainModel.ParseModels;
+using Microsoft.EntityFrameworkCore;
 namespace EkoMon.DomainModel.Db
 {
     public class EntityContext : DbContext
@@ -7,12 +10,39 @@ namespace EkoMon.DomainModel.Db
         public DbSet<Location> Locations { get; set; } = null!;
         public DbSet<Unit> Units { get; set; } = null!;
         public DbSet<Parameter> Parameters { get; set; } = null!;
+        public DbSet<Category> Categories { get; set; } = null!;
         public DbSet<LocationParameter> LocationParameters { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(EntityContext)).Location), "categoriesParameters.json");
+            string json = File.ReadAllText(path);
+
+            var root = JsonSerializer.Deserialize<Root>(json);
+
+            var units = root.Measurements.Select(u => u.Unit).Concat(root.Statistics.Select(u => u.Unit)).Where(i => i != null).DistinctBy(i => i.Id).Select(o => new Unit(o.Name) { Id = o.Id }).ToList();
+            var categories = root.Indicators.Select(v => new Category() { Id = v.Id, Title = v.Name, }).ToList();
+            var parameters1 = root.Statistics.Select(v => new Parameter(v.Name) { Id = v.Id, UnitId = v.Unit?.Id, Type = ParameterType.Statistical, CategoryId = FindCategoryId(v)}).ToList();
+            var parameters2 = root.Measurements.Select(v => new Parameter(v.Name) { Id = v.Id, UnitId = v.Unit?.Id, Type = ParameterType.Measurable, CategoryId = FindCategoryId(v) }).ToList();
             base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<Location>().HasData(
+
+            modelBuilder.Entity<Unit>().HasData(units);
+            modelBuilder.Entity<Category>().HasData(categories);
+            modelBuilder.Entity<Parameter>().HasData(parameters1.Concat(parameters2));
+
+            int FindCategoryId(ParseModels.Parameter parameter)
+            {
+                foreach (var indicator in root.Indicators)
+                {
+                    if (indicator.Statistical.Any(i => i == parameter.Id) || indicator.Measuring.Any(i => i == parameter.Id))
+                    {
+                        return indicator.Id;
+                    }
+                }
+                throw new ArgumentOutOfRangeException();
+            }
+
+            /*modelBuilder.Entity<Location>().HasData(
                 new Location("місто Київ", 50.4495382555955, 30.525422556705447) { Id = 1 },
                 new Location("Київський автомобільний ремонтний завод", 50.454814, 30.635263) { Id = 2 },
                 new Location("Станція для визначення рівня забруднення атмосферного повітря", 50.471031886528294, 30.51289857360725) { Id = 3 }
@@ -36,7 +66,7 @@ namespace EkoMon.DomainModel.Db
                 new LocationParameter() { Id = 5, LocationId = 3, ParameterId = 5, Value = 57.7 },
                 new LocationParameter() { Id = 6, LocationId = 3, ParameterId = 6, Value = 1006.7 },
                 new LocationParameter() { Id = 7, LocationId = 3, ParameterId = 7, Value = 13 }
-            );
+            );*/
         }
     }
 }
