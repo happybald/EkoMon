@@ -1,0 +1,22 @@
+﻿<h2 mat-dialog-title>{{this.data[0].parameter.title}}</h2>
+<mat-dialog-content style="min-width: 500px; min-height: 500px">
+        <ngx-charts-line-chart
+                [view]="[800,500]"
+                [results]="chartData"
+                [xAxisLabel]="'Dates'"
+                [yAxisLabel]="'Values'"
+                [showXAxisLabel]="true"
+                [showYAxisLabel]="true"
+                [showGridLines]="true"
+                [xAxis]="true"
+                [yAxis]="true"
+                [tooltipDisabled]="true"
+                [rangeFillOpacity]="0"
+                [animations]="false"
+        >
+        </ngx-charts-line-chart>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+    <button mat-button (click)="close()">Cancel</button>
+</mat-dialog-actions>
+    

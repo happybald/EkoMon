@@ -7,7 +7,7 @@
         public int? UnitId { get; set; }
         public Unit? Unit { get; set; }
         public List<LocationParameter> LocationParameters { get; set; } = null!;
-        public int? CategoryId { get; set; }
+        public int CategoryId { get; set; }
         public Category Category { get; set; }
         public ParameterType Type { get; set; }
         public Parameter(string title)

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EkoMon.DomainModel.Migrations
 {
     [DbContext(typeof(EntityContext))]
-    [Migration("20230513172011_Initial")]
+    [Migration("20230519182325_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -118,6 +118,9 @@ namespace EkoMon.DomainModel.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("LocationId")
                         .HasColumnType("integer");
 
@@ -144,7 +147,7 @@ namespace EkoMon.DomainModel.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CategoryId")
+                    b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Title")
@@ -450,7 +453,8 @@ namespace EkoMon.DomainModel.Migrations
                             Id = 24,
                             CategoryId = 6,
                             Title = "Валовий внутрішній продукт",
-                            Type = 0
+                            Type = 0,
+                            UnitId = 8
                         },
                         new
                         {
@@ -565,6 +569,11 @@ namespace EkoMon.DomainModel.Migrations
                         },
                         new
                         {
+                            Id = 8,
+                            Title = "грн."
+                        },
+                        new
+                        {
                             Id = 5,
                             Title = "тонн"
                         },
@@ -577,11 +586,6 @@ namespace EkoMon.DomainModel.Migrations
                         {
                             Id = 7,
                             Title = "млн. дол."
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Title = "грн."
                         },
                         new
                         {
@@ -633,7 +637,9 @@ namespace EkoMon.DomainModel.Migrations
                 {
                     b.HasOne("EkoMon.DomainModel.Db.Category", "Category")
                         .WithMany("Parameters")
-                        .HasForeignKey("CategoryId");
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("EkoMon.DomainModel.Db.Unit", "Unit")
                         .WithMany("Parameters")

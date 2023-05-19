@@ -8,11 +8,22 @@
      (leafletMapReady)="onMapReady($event)"
      (leafletClick)="mapClick($event)"
 >
-    <div style="z-index: 999; position: relative; top:80px; left: 15px; width: fit-content; justify-content: center; display: flex; flex-direction: column;">
-        <button mat-flat-button color="{{addMode ? 'warn' : 'primary'}}" (click)="toggleAddMarker($event)">{{ addMode ? "Cancle" : "Add marker" }}</button>
-    </div>
-    
-    <div style="z-index: 999;position: absolute; top: 0; width: 100%; display: flex; justify-content: center">
-        <span *ngIf="addMode" style="color: red; font-weight: bold; font-size: 16px">Click to add new marker</span>
-    </div>
+
+</div>
+<div style="z-index: 999; position: absolute; background-color: aliceblue; top:200px; left: 25px; padding: 8px; width: fit-content; justify-content: center; display: flex; flex-direction: column; gap: 20px; font-size: 14px">
+    <button mat-flat-button color="{{addMode ? 'warn' : 'primary'}}"
+            (click)="toggleAddMarker($event)" [disabled]="!canAdd()">{{ addMode ? "Cancle" : "Add marker" }}</button>
+    <!--Using items input-->
+    <ng-select [items]="categories"
+               bindLabel="title"
+               style="width: 200px; margin: 0; padding: 0; background-color: white"
+               [searchable]=false
+               placeholder="Category"
+               [(ngModel)]="currentCategory"
+               (ngModelChange)="categoryChanged($event)">
+    </ng-select>
+</div>
+
+<div style="z-index: 999;position: absolute; top: 0; width: 100%; display: flex; justify-content: center">
+    <span *ngIf="addMode" style="color: red; font-weight: bold; font-size: 16px">Click to add new marker</span>
 </div>

@@ -1,4 +1,5 @@
 @import "@ng-select/ng-select/themes/material.theme.css";
+
 * {
   box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
@@ -84,3 +85,8 @@ app-top-bar h1 {
 html, body {
   height: 100%;
 }
+
+$white: #fff;
+$black: #000;
+$chart-tooltip-border-radius: 5px;
+$chart-caret-size: 7px solid $white !default;

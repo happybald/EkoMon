@@ -1,8 +1,23 @@
 import {Component, NgZone, OnInit} from '@angular/core';
-import {latLng, MapOptions, tileLayer, Map, marker, LeafletMouseEvent, LatLng, Marker, LayerGroup, layerGroup, icon, Icon} from "leaflet";
+import {
+    latLng,
+    MapOptions,
+    tileLayer,
+    Map,
+    marker,
+    LeafletMouseEvent,
+    LatLng,
+    Marker,
+    LayerGroup,
+    layerGroup,
+    icon,
+    Icon
+} from "leaflet";
 import {ApiClientModule} from "../api.module";
 import {MatDialog, MatDialogConfig, MatDialogRef} from "@angular/material/dialog";
 import {InfoPopupDialog, InfoPopupDialogModel} from "../info-popup-dialog/info-popup-dialog.component";
+import {lastValueFrom} from "rxjs";
+import CategoryModel = ApiClientModule.CategoryModel;
 
 @Component({
     selector: 'app-main-page',
@@ -15,7 +30,7 @@ export class MainPageComponent implements OnInit {
         layers: [
             tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, attribution: '...'})
         ],
-        zoom: 13,
+        zoom: 7,
         center: latLng(50.449071, 30.526081),
     };
 
@@ -23,11 +38,22 @@ export class MainPageComponent implements OnInit {
     markersGroup: LayerGroup = null!;
     addMode: boolean = false;
 
+    canAdd = () => {
+        if (this.currentCategory) {
+            return false;
+        }
+        return true;
+    };
+
+    categories: ApiClientModule.CategoryModel[] = new Array<ApiClientModule.CategoryModel>();
+    currentCategory?: ApiClientModule.CategoryModel;
+
     constructor(private apiClient: ApiClientModule.ApiClient, private dialog: MatDialog, private zone: NgZone) {
     }
 
 
-    ngOnInit(): void {
+    async ngOnInit(): Promise<void> {
+        this.categories = await lastValueFrom(this.apiClient.getCategories());
     }
 
     onMapReady(map: Map) {
@@ -36,9 +62,9 @@ export class MainPageComponent implements OnInit {
         this.updateData();
     }
 
-    updateData() {
+    updateData(categoryId?: number | null | undefined) {
         this.markersGroup.clearLayers();
-        this.apiClient.getLocations().subscribe(locations => {
+        this.apiClient.getLocations(categoryId).subscribe(locations => {
             for (const location of locations) {
                 this.createNewMarker(location);
             }
@@ -113,13 +139,21 @@ export class MainPageComponent implements OnInit {
                     title: title,
                     latitude: $event.latlng.lat,
                     longitude: $event.latlng.lng,
+                    categoryId: this.currentCategory?.id,
                 } as InfoPopupDialogModel,
             } as MatDialogConfig;
             const dialogRef = this.dialog.open(InfoPopupDialog, dialogConfig) as MatDialogRef<InfoPopupDialog, ApiClientModule.LocationModel>;
 
             dialogRef.afterClosed().subscribe(r => {
-                this.updateData();
+                this.updateData(this.currentCategory?.id);
             });
         });
+    }
+
+    categoryChanged($event?: CategoryModel) {
+        if ($event)
+            this.addMode = false;
+
+        this.updateData($event?.id)
     }
 }

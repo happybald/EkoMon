@@ -29,8 +29,117 @@ export class ApiClient {
         this.baseUrl = baseUrl !== undefined && baseUrl !== null ? baseUrl : "https://localhost:7203";
     }
 
-    getLocations(): Observable<LocationShortModel[]> {
-        let url_ = this.baseUrl + "/Api/GetLocations";
+    dev(): Observable<FileResponse | null> {
+        let url_ = this.baseUrl + "/Api/Dev";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDev(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDev(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse | null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse | null>;
+        }));
+    }
+
+    protected processDev(response: HttpResponseBase): Observable<FileResponse | null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getCategories(): Observable<CategoryModel[]> {
+        let url_ = this.baseUrl + "/Api/GetCategories";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetCategories(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetCategories(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<CategoryModel[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<CategoryModel[]>;
+        }));
+    }
+
+    protected processGetCategories(response: HttpResponseBase): Observable<CategoryModel[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(CategoryModel.fromJS(item));
+            }
+            else {
+                result200 = <any>null;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getLocations(categoryId?: number | null | undefined): Observable<LocationShortModel[]> {
+        let url_ = this.baseUrl + "/Api/GetLocations?";
+        if (categoryId !== undefined && categoryId !== null)
+            url_ += "categoryId=" + encodeURIComponent("" + categoryId) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -135,8 +244,170 @@ export class ApiClient {
         return _observableOf(null as any);
     }
 
-    updateLocation(location: LocationModel): Observable<LocationModel> {
-        let url_ = this.baseUrl + "/Api/UpdateLocation";
+    getLocationParameter(id: number): Observable<LocationParameterModel> {
+        let url_ = this.baseUrl + "/Api/GetLocationParameter/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetLocationParameter(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetLocationParameter(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LocationParameterModel>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LocationParameterModel>;
+        }));
+    }
+
+    protected processGetLocationParameter(response: HttpResponseBase): Observable<LocationParameterModel> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LocationParameterModel.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    upsertLocationParameter(locationParameterModel: LocationParameterModel, locationId?: number | undefined): Observable<LocationParameterModel> {
+        let url_ = this.baseUrl + "/Api/UpsertLocationParameter?";
+        if (locationId === null)
+            throw new Error("The parameter 'locationId' cannot be null.");
+        else if (locationId !== undefined)
+            url_ += "locationId=" + encodeURIComponent("" + locationId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(locationParameterModel);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpsertLocationParameter(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpsertLocationParameter(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<LocationParameterModel>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<LocationParameterModel>;
+        }));
+    }
+
+    protected processUpsertLocationParameter(response: HttpResponseBase): Observable<LocationParameterModel> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = LocationParameterModel.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    deleteLocationParameter(id: number): Observable<FileResponse | null> {
+        let url_ = this.baseUrl + "/Api/DeleteLocationParameter/{id}";
+        if (id === undefined || id === null)
+            throw new Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/octet-stream"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteLocationParameter(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteLocationParameter(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<FileResponse | null>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<FileResponse | null>;
+        }));
+    }
+
+    protected processDeleteLocationParameter(response: HttpResponseBase): Observable<FileResponse | null> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200 || status === 206) {
+            const contentDisposition = response.headers ? response.headers.get("content-disposition") : undefined;
+            let fileNameMatch = contentDisposition ? /filename\*=(?:(\\?['"])(.*?)\1|(?:[^\s]+'.*?')?([^;\n]*))/g.exec(contentDisposition) : undefined;
+            let fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[3] || fileNameMatch[2] : undefined;
+            if (fileName) {
+                fileName = decodeURIComponent(fileName);
+            } else {
+                fileNameMatch = contentDisposition ? /filename="?([^"]*?)"?(;|$)/g.exec(contentDisposition) : undefined;
+                fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
+            }
+            return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    upsertLocation(location: LocationModel): Observable<LocationModel> {
+        let url_ = this.baseUrl + "/Api/UpsertLocation";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = JSON.stringify(location);
@@ -152,11 +423,11 @@ export class ApiClient {
         };
 
         return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processUpdateLocation(response_);
+            return this.processUpsertLocation(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
                 try {
-                    return this.processUpdateLocation(response_ as any);
+                    return this.processUpsertLocation(response_ as any);
                 } catch (e) {
                     return _observableThrow(e) as any as Observable<LocationModel>;
                 }
@@ -165,7 +436,7 @@ export class ApiClient {
         }));
     }
 
-    protected processUpdateLocation(response: HttpResponseBase): Observable<LocationModel> {
+    protected processUpsertLocation(response: HttpResponseBase): Observable<LocationModel> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -405,6 +676,53 @@ export class ApiClient {
     }
 }
 
+export class CategoryModel implements ICategoryModel {
+    id!: number;
+    title!: string;
+
+    constructor(data?: ICategoryModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.title = _data["title"];
+        }
+    }
+
+    static fromJS(data: any): CategoryModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new CategoryModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["title"] = this.title;
+        return data;
+    }
+
+    clone(): CategoryModel {
+        const json = this.toJSON();
+        let result = new CategoryModel();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ICategoryModel {
+    id: number;
+    title: string;
+}
+
 export class LocationShortModel implements ILocationShortModel {
     id!: number;
     title!: string;
@@ -462,12 +780,12 @@ export interface ILocationShortModel {
 
 export class LocationModel extends LocationShortModel implements ILocationModel {
     address!: string;
-    locationParameters!: LocationParameterModel[];
+    groupedLocationParameters!: GroupedLocationParameterModel[];
 
     constructor(data?: ILocationModel) {
         super(data);
         if (!data) {
-            this.locationParameters = [];
+            this.groupedLocationParameters = [];
         }
     }
 
@@ -475,10 +793,10 @@ export class LocationModel extends LocationShortModel implements ILocationModel 
         super.init(_data);
         if (_data) {
             this.address = _data["address"];
-            if (Array.isArray(_data["locationParameters"])) {
-                this.locationParameters = [] as any;
-                for (let item of _data["locationParameters"])
-                    this.locationParameters!.push(LocationParameterModel.fromJS(item));
+            if (Array.isArray(_data["groupedLocationParameters"])) {
+                this.groupedLocationParameters = [] as any;
+                for (let item of _data["groupedLocationParameters"])
+                    this.groupedLocationParameters!.push(GroupedLocationParameterModel.fromJS(item));
             }
         }
     }
@@ -493,10 +811,10 @@ export class LocationModel extends LocationShortModel implements ILocationModel 
     override toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["address"] = this.address;
-        if (Array.isArray(this.locationParameters)) {
-            data["locationParameters"] = [];
-            for (let item of this.locationParameters)
-                data["locationParameters"].push(item.toJSON());
+        if (Array.isArray(this.groupedLocationParameters)) {
+            data["groupedLocationParameters"] = [];
+            for (let item of this.groupedLocationParameters)
+                data["groupedLocationParameters"].push(item.toJSON());
         }
         super.toJSON(data);
         return data;
@@ -512,15 +830,14 @@ export class LocationModel extends LocationShortModel implements ILocationModel 
 
 export interface ILocationModel extends ILocationShortModel {
     address: string;
-    locationParameters: LocationParameterModel[];
+    groupedLocationParameters: GroupedLocationParameterModel[];
 }
 
-export class LocationParameterModel implements ILocationParameterModel {
-    id!: number;
+export class GroupedLocationParameterModel implements IGroupedLocationParameterModel {
     parameter!: ParameterModel;
-    value!: number;
+    locationParameters!: LocationParameterModel[];
 
-    constructor(data?: ILocationParameterModel) {
+    constructor(data?: IGroupedLocationParameterModel) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -529,48 +846,55 @@ export class LocationParameterModel implements ILocationParameterModel {
         }
         if (!data) {
             this.parameter = new ParameterModel();
+            this.locationParameters = [];
         }
     }
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
             this.parameter = _data["parameter"] ? ParameterModel.fromJS(_data["parameter"]) : new ParameterModel();
-            this.value = _data["value"];
+            if (Array.isArray(_data["locationParameters"])) {
+                this.locationParameters = [] as any;
+                for (let item of _data["locationParameters"])
+                    this.locationParameters!.push(LocationParameterModel.fromJS(item));
+            }
         }
     }
 
-    static fromJS(data: any): LocationParameterModel {
+    static fromJS(data: any): GroupedLocationParameterModel {
         data = typeof data === 'object' ? data : {};
-        let result = new LocationParameterModel();
+        let result = new GroupedLocationParameterModel();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
         data["parameter"] = this.parameter ? this.parameter.toJSON() : <any>undefined;
-        data["value"] = this.value;
+        if (Array.isArray(this.locationParameters)) {
+            data["locationParameters"] = [];
+            for (let item of this.locationParameters)
+                data["locationParameters"].push(item.toJSON());
+        }
         return data;
     }
 
-    clone(): LocationParameterModel {
+    clone(): GroupedLocationParameterModel {
         const json = this.toJSON();
-        let result = new LocationParameterModel();
+        let result = new GroupedLocationParameterModel();
         result.init(json);
         return result;
     }
 }
 
-export interface ILocationParameterModel {
-    id: number;
+export interface IGroupedLocationParameterModel {
     parameter: ParameterModel;
-    value: number;
+    locationParameters: LocationParameterModel[];
 }
 
 export class ParameterModel implements IParameterModel {
     id!: number;
+    categoryId!: number;
     title!: string;
     unit?: UnitModel | undefined;
 
@@ -586,6 +910,7 @@ export class ParameterModel implements IParameterModel {
     init(_data?: any) {
         if (_data) {
             this.id = _data["id"];
+            this.categoryId = _data["categoryId"];
             this.title = _data["title"];
             this.unit = _data["unit"] ? UnitModel.fromJS(_data["unit"]) : <any>undefined;
         }
@@ -601,6 +926,7 @@ export class ParameterModel implements IParameterModel {
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["id"] = this.id;
+        data["categoryId"] = this.categoryId;
         data["title"] = this.title;
         data["unit"] = this.unit ? this.unit.toJSON() : <any>undefined;
         return data;
@@ -616,6 +942,7 @@ export class ParameterModel implements IParameterModel {
 
 export interface IParameterModel {
     id: number;
+    categoryId: number;
     title: string;
     unit?: UnitModel | undefined;
 }
@@ -665,6 +992,64 @@ export class UnitModel implements IUnitModel {
 export interface IUnitModel {
     id: number;
     title: string;
+}
+
+export class LocationParameterModel implements ILocationParameterModel {
+    id!: number;
+    parameter!: ParameterModel;
+    value!: number;
+    dateTime!: Date;
+
+    constructor(data?: ILocationParameterModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+        if (!data) {
+            this.parameter = new ParameterModel();
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.parameter = _data["parameter"] ? ParameterModel.fromJS(_data["parameter"]) : new ParameterModel();
+            this.value = _data["value"];
+            this.dateTime = _data["dateTime"] ? new Date(_data["dateTime"].toString()) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): LocationParameterModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new LocationParameterModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["parameter"] = this.parameter ? this.parameter.toJSON() : <any>undefined;
+        data["value"] = this.value;
+        data["dateTime"] = this.dateTime ? this.dateTime.toISOString() : <any>undefined;
+        return data;
+    }
+
+    clone(): LocationParameterModel {
+        const json = this.toJSON();
+        let result = new LocationParameterModel();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface ILocationParameterModel {
+    id: number;
+    parameter: ParameterModel;
+    value: number;
+    dateTime: Date;
 }
 
 export interface FileResponse {

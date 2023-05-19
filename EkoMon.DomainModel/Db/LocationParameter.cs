@@ -13,6 +13,8 @@ namespace EkoMon.DomainModel.Db
         
         public double Value { get; set; }
 
+        public DateTime DateTime { get; set; } = DateTime.UtcNow;
+
 
         public LocationParameter()
         {

@@ -7,6 +7,7 @@ namespace EkoMon.WebApp.ApiModels
         public int Id { get; set; }
         public ParameterModel Parameter { get; set; }
         public double Value { get; set; }
+        public DateTime DateTime { get; set; }
         public LocationParameterModel()
         {
         }
@@ -15,6 +16,7 @@ namespace EkoMon.WebApp.ApiModels
             Id = locationParameter.Id;
             Parameter = new ParameterModel(locationParameter.Parameter);
             Value = locationParameter.Value;
+            DateTime = locationParameter.DateTime.ToLocalTime();
         }
     }
 }

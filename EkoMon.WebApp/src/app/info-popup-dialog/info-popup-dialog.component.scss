@@ -5,10 +5,27 @@
   align-items: center;
 }
 
-.mat-table-custom{
+.mat-table-custom {
   display: block;
-  
-  tr{
+
+  tr {
     max-height: 20px !important;
+  }
+}
+
+.mat-expansion-panel-spacing {
+  margin: 0;
+}
+
+.badge {
+  margin: 0 4px;
+  background-color: darkblue;
+  color: white;
+  padding: 2px 8px;
+  text-align: center;
+  border-radius: 8px;
+
+  &.badge-red {
+    background-color: darkred;
   }
 }

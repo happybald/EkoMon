@@ -84,7 +84,7 @@ namespace EkoMon.WebApp.Controllers
                     new LocationParameter(24, 29338000),
                 }
             };
-           
+
             context.Add(location);
             context.Add(location1);
             context.Add(location2);
@@ -105,20 +105,28 @@ namespace EkoMon.WebApp.Controllers
             });
 
             var result = System.Text.Json.JsonSerializer.Serialize(locations);
-            var parameters = context.Parameters.Where(t=>t.Type == ParameterType.Measurable).Include(u => u.Unit).Select(o => new
+            var parameters = context.Parameters.Where(t => t.Type == ParameterType.Measurable).Include(u => u.Unit).Select(o => new
             {
                 Id = o.Id,
                 Name = o.Title,
                 Unit = o.Unit.Title
             });
             var result1 = System.Text.Json.JsonSerializer.Serialize(parameters);
-            
+
             return Ok();
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<LocationShortModel>>> GetLocations()
+        public async Task<ActionResult<List<CategoryModel>>> GetCategories()
         {
+            return await context.Categories.Select(o => new CategoryModel(o)).ToListAsync();
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<LocationShortModel>>> GetLocations(int? categoryId = null)
+        {
+            if (categoryId.HasValue)
+                return await context.Locations.Where(lp => lp.LocationParameters.Any(p => p.Parameter.CategoryId == categoryId.Value)).Select(o => new LocationShortModel(o)).ToListAsync();
             return await context.Locations.Select(o => new LocationShortModel(o)).ToListAsync();
         }
 
@@ -128,110 +136,74 @@ namespace EkoMon.WebApp.Controllers
             var location = await context.Locations.Include(l => l.LocationParameters).ThenInclude(p => p.Parameter).ThenInclude(u => u.Unit).FirstOrDefaultAsync(i => i.Id == id);
 
             if (location == null)
-            {
                 return NotFound();
-            }
 
             return new LocationModel(location);
         }
 
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<LocationParameterModel>> GetLocationParameter(int id)
+        {
+            var locationParameter = await context.LocationParameters.Include(p => p.Parameter).ThenInclude(u => u.Unit).FirstOrDefaultAsync(i => i.Id == id);
+
+            if (locationParameter == null)
+                return NotFound();
+
+            return new LocationParameterModel(locationParameter);
+        }
+
         [HttpPost]
-        public async Task<ActionResult<LocationModel>> UpdateLocation(LocationModel location)
+        public async Task<ActionResult<LocationParameterModel>> UpsertLocationParameter(LocationParameterModel locationParameterModel, int locationId)
+        {
+            var dbLocationParameter = await context.LocationParameters.Include(p => p.Parameter).ThenInclude(u => u.Unit).FirstOrDefaultAsync(i => i.Id == locationParameterModel.Id);
+            if (dbLocationParameter == null)
+                dbLocationParameter = new LocationParameter(locationParameterModel.Parameter.Id, locationParameterModel.Value);
+
+            dbLocationParameter.LocationId = locationId;
+            dbLocationParameter.DateTime = locationParameterModel.DateTime;
+            dbLocationParameter.Value = locationParameterModel.Value;
+
+            if (dbLocationParameter.Id == 0)
+                context.LocationParameters.Add(dbLocationParameter);
+
+            await context.SaveChangesAsync();
+            dbLocationParameter = await context.LocationParameters.Include(p => p.Parameter).ThenInclude(u => u.Unit).FirstOrDefaultAsync(i => i.Id == dbLocationParameter.Id);
+            return new LocationParameterModel(dbLocationParameter);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteLocationParameter(int id)
+        {
+            var locationParameter = await context.LocationParameters.FindAsync(id);
+            if (locationParameter == null)
+            {
+                return NotFound();
+            }
+
+            context.LocationParameters.Remove(locationParameter);
+            await context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<LocationModel>> UpsertLocation(LocationModel location)
         {
             var dbLocation = await context.Locations.Include(l => l.LocationParameters).ThenInclude(p => p.Parameter).ThenInclude(u => u.Unit).FirstOrDefaultAsync(i => i.Id == location.Id);
             if (dbLocation == null)
-                return NotFound();
+                dbLocation = new Location(location.Title, location.Latitude, location.Longitude);
 
             dbLocation.Title = location.Title;
             dbLocation.Address = location.Address;
             dbLocation.Latitude = location.Latitude;
             dbLocation.Longitude = location.Longitude;
 
-            var parametersToRemove = dbLocation.LocationParameters
-                .Where(db => location.LocationParameters.All(lp2 => lp2.Id != db.Id))
-                .ToList();
-
-            foreach (var parameter in parametersToRemove)
-            {
-                dbLocation.LocationParameters.Remove(parameter);
-                context.LocationParameters.Remove(parameter);
-            }
-
-            // Update existing objects and add new objects
-            foreach (var locationParameterModel in location.LocationParameters)
-            {
-                if (locationParameterModel.Id == 0)
-                {
-                    var dbLocationParameter = new LocationParameter();
-                    dbLocationParameter.Value = locationParameterModel.Value;
-                    var parameterModel = locationParameterModel.Parameter;
-                    if (parameterModel.Id == 0)
-                    {
-                        var dbParameter = new Parameter(parameterModel.Title);
-                        var unitModel = parameterModel.Unit;
-                        if (unitModel != null)
-                        {
-                            if (unitModel.Id == 0)
-                            {
-                                var dbUnit = new Unit(unitModel.Title);
-                                dbParameter.Unit = dbUnit;
-                            }
-                            else
-                            {
-                                dbParameter.UnitId = unitModel.Id;
-                            }
-                        }
-                        dbLocationParameter.Parameter = dbParameter;
-                    }
-                    else
-                    {
-                        dbLocationParameter.ParameterId = parameterModel.Id;
-                    }
-                    dbLocation.LocationParameters.Add(dbLocationParameter);
-                }
-                else
-                {
-                    var dbLocationParameter = dbLocation.LocationParameters.First(i => i.Id == locationParameterModel.Id);
-                    dbLocationParameter.Value = locationParameterModel.Value;
-                    var parameterModel = locationParameterModel.Parameter;
-                    if (parameterModel.Id == 0)
-                    {
-                        var dbParameter = new Parameter(parameterModel.Title);
-                        var unitModel = parameterModel.Unit;
-                        if (unitModel != null)
-                        {
-                            if (unitModel.Id == 0)
-                            {
-                                var dbUnit = new Unit(unitModel.Title);
-                                dbParameter.Unit = dbUnit;
-                            }
-                            else
-                            {
-                                dbParameter.UnitId = unitModel.Id;
-                            }
-                        }
-                        dbLocationParameter.Parameter = dbParameter;
-                    }
-                    else
-                    {
-                        dbLocationParameter.ParameterId = parameterModel.Id;
-                    }
-                }
-            }
+            if (dbLocation.Id == 0)
+                context.Locations.Add(dbLocation);
 
             await context.SaveChangesAsync();
-            dbLocation = await context.Locations.Include(l => l.LocationParameters).ThenInclude(p => p.Parameter).ThenInclude(u => u.Unit).FirstAsync(i => i.Id == location.Id);
-            return new LocationModel(dbLocation);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<LocationShortModel>> PostLocation(LocationShortModel location)
-        {
-            var dbLocation = new Location(location.Title, location.Latitude, location.Longitude);
-            context.Locations.Add(dbLocation);
-            await context.SaveChangesAsync();
-
-            return new LocationShortModel(dbLocation);
+            dbLocation = await context.Locations.Include(l => l.LocationParameters).ThenInclude(p => p.Parameter).ThenInclude(u => u.Unit).FirstOrDefaultAsync(i => i.Id == dbLocation.Id);
+            return new LocationModel(dbLocation!);
         }
 
         [HttpDelete("{id}")]

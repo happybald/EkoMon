@@ -68,5 +68,10 @@ namespace EkoMon.DomainModel.Db
                 new LocationParameter() { Id = 7, LocationId = 3, ParameterId = 7, Value = 13 }
             );*/
         }
+        
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<DateTime>().HaveConversion<DateTimeConverter>();
+        }
     }
 }

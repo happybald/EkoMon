@@ -27,9 +27,15 @@
                 <p *ngIf="locationParameterClone.parameter.id != 0">
                     Units: {{locationParameterClone.parameter.unit?.title ?? "-"}}</p>
             </div>
+            <mat-form-field>
+                <input matInput [matDatepicker]="datepicker1" placeholder="Start Date" [(ngModel)]="locationParameterClone.dateTime" required>
+                <mat-datepicker-toggle matSuffix [for]="datepicker1"></mat-datepicker-toggle>
+                <mat-datepicker touchUi="true" #datepicker1></mat-datepicker>
+            </mat-form-field>
         </div>
     </mat-dialog-content>
-    <mat-dialog-actions style="position:absolute; width:100%; bottom:0; display: flex; justify-content: space-between; align-items: center; ">
+    <mat-dialog-actions
+            style="position:absolute; width:100%; bottom:0; display: flex; justify-content: space-between; align-items: center; ">
         <button mat-flat-button (click)="cancel()">Cancel</button>
         <button mat-flat-button color="primary" (click)="save()">Save</button>
     </mat-dialog-actions>

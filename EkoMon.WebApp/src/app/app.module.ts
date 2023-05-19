@@ -18,17 +18,31 @@ import {LocationParameterDialog} from "./location-parameter-dialog/location-para
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {MatSelectModule} from "@angular/material/select";
 import {NgSelectModule} from "@ng-select/ng-select";
+import {MatRadioModule} from "@angular/material/radio";
+import {NgxMatDatetimePickerModule, NgxMatTimepickerModule} from "@angular-material-components/datetime-picker";
+import {MatDatepickerModule} from "@angular/material/datepicker";
+import {MatNativeDateModule} from "@angular/material/core";
+import {MatExpansionModule} from "@angular/material/expansion";
+import {MatChipsModule} from "@angular/material/chips";
+import {MatListModule} from "@angular/material/list";
+import {ChartDialog} from "./chart-dialog/chart-dialog.component";
+import {BarChartModule, LineChartModule, NgxChartsModule, TooltipModule} from "@swimlane/ngx-charts";
+import {DatePipe} from "@angular/common";
 
 
 @NgModule({
     imports: [
         BrowserModule,
+        MatDatepickerModule,
+        NgxMatTimepickerModule,
+        NgxMatDatetimePickerModule,
         HttpClientModule,
         ReactiveFormsModule,
         LeafletModule,
         BrowserAnimationsModule,
         MatDialogModule,
         MatButtonModule,
+        MatNativeDateModule,
         NgSelectModule,
         FormsModule,
         RouterModule.forRoot([
@@ -37,15 +51,24 @@ import {NgSelectModule} from "@ng-select/ng-select";
         MatInputModule,
         MatTableModule,
         MatAutocompleteModule,
-        MatSelectModule
+        MatSelectModule,
+        MatRadioModule,
+        MatExpansionModule,
+        MatChipsModule,
+        TooltipModule,
+        NgxChartsModule,
+        MatListModule,
+        LineChartModule
     ],
     declarations: [
         AppComponent,
         TopBarComponent,
         InfoPopupDialog,
         MainPageComponent,
+        ChartDialog,
         LocationParameterDialog,
     ],
+    providers: [DatePipe],
     bootstrap: [
         AppComponent
     ]

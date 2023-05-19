@@ -14,57 +14,48 @@
                 <mat-label>Address</mat-label>
                 <input matInput [(ngModel)]="location.address">
             </mat-form-field>
-            <!-- <mat-form-field class="denseInput">
-                 <mat-label>Category</mat-label>
-                 <input matInput [(ngModel)]="location.address">
-             </mat-form-field>-->
         </div>
         <div style="flex: 3; font-size: 14px; display: flex; flex-direction: column; justify-content: space-between; ">
-            <span *ngIf="!location.locationParameters.length">Add some parameters</span>
-            <div style="height: 500px; max-width: 100%; overflow: auto;" *ngIf="location.locationParameters.length">
-                <table class="mat-table-custom" mat-table [dataSource]="location.locationParameters">
-                    <ng-container matColumnDef="parameter.title">
-                        <th mat-header-cell *matHeaderCellDef> Parameter</th>
-                        <td mat-cell *matCellDef="let element"> {{element.parameter.title}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="value">
-                        <th mat-header-cell *matHeaderCellDef> Value</th>
-                        <td mat-cell *matCellDef="let element"> {{element.value}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="parameter.unit.title">
-                        <th mat-header-cell *matHeaderCellDef> Unit</th>
-                        <td mat-cell style="white-space: nowrap;"
-                            *matCellDef="let element"> {{element.parameter.unit?.title ?? "-"}} </td>
-                    </ng-container>
-                    <ng-container matColumnDef="actions">
-                        <th mat-header-cell *matHeaderCellDef></th>
-                        <td mat-cell *matCellDef="let element">
-                            <button mat-flat-button color="primary" (click)="openLocationParameter(element)">Edit</button>
-                        </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="displayColumns; sticky: true"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayColumns;"></tr>
-                </table>
+            <mat-radio-group [(ngModel)]="currentCategory">
+                <mat-radio-button [value]="undefined">All</mat-radio-button>
+                <mat-radio-button *ngFor="let category of categories" [value]="category">
+                    {{category.title}}
+                </mat-radio-button>
+            </mat-radio-group>
+            <mat-divider></mat-divider>
+            <span *ngIf="!filteredLocationParameters().length" style="height: 500px;">Add some parameters</span>
+            <div style="height: 500px; max-width: 100%; overflow: auto;" *ngIf="filteredLocationParameters().length">
+                <mat-accordion>
+                    <mat-expansion-panel *ngFor="let group of filteredLocationParameters()">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                {{group.parameter.title}}
+                            </mat-panel-title>
+                            <mat-panel-description>
+                                {{group.locationParameters[0].value}} {{group.parameter.unit?.title}}
+                                <span
+                                        style="margin-left: auto"
+                                        class="badge">{{group.locationParameters[0].dateTime | date:'dd.MM.yyyy'}}</span>
+                                <span class="badge badge-red" *ngIf="group.locationParameters.length > 1">chart</span>
+                            </mat-panel-description>
+                        </mat-expansion-panel-header>
+                        <div  style="display: flex; flex-direction: column; gap:8px;">
+                            <button mat-flat-button color="accent" (click)="openChart(group.locationParameters)"  *ngIf="group.locationParameters.length > 1">chart</button>
+                            <div *ngFor="let locationParameter of group.locationParameters" style="display:flex; justify-content:space-between; align-items: center">
+                                <span class="badge">{{locationParameter.dateTime | date:'dd.MM.yyyy'}}</span>
+                                <span>{{locationParameter.value}} {{group.parameter.unit?.title}}</span>
+                                <button mat-flat-button color="primary" (click)="openLocationParameter(locationParameter)">Edit</button>
+                            </div>
+                        </div>
+                    </mat-expansion-panel>
+                </mat-accordion>
             </div>
 
             <button mat-flat-button color="primary" (click)="addLocationParameter()">Add</button>
-            <!--<table>
-                <thead>
-                <tr>
-                    <th>Parameter</th>
-                    <th>Unit</th>
-                    <th>Value</th>
-                </tr>
-                <tr *ngFor="let locationParameter of location.locationParameters">
-                    <td>{{locationParameter.parameter.title}}</td>
-                    <td>{{locationParameter.parameter.unit?.title}}</td>
-                    <td>{{locationParameter.value}}</td>
-                </tr>
-                </thead>
-            </table>-->
         </div>
     </mat-dialog-content>
-    <mat-dialog-actions style="position:relative; width:100%; bottom:0; display: flex; justify-content: space-between; align-items: center; ">
+    <mat-dialog-actions
+            style="position:relative; width:100%; bottom:0; display: flex; justify-content: space-between; align-items: center; ">
         <button mat-flat-button (click)="close()">Close</button>
         <button mat-flat-button color="primary" (click)="save()">Save</button>
         <!-- The mat-dialog-close directive optionally accepts a value as a result for the dialog. -->

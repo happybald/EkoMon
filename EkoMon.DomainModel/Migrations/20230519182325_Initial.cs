@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -59,7 +60,7 @@ namespace EkoMon.DomainModel.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Title = table.Column<string>(type: "text", nullable: false),
                     UnitId = table.Column<int>(type: "integer", nullable: true),
-                    CategoryId = table.Column<int>(type: "integer", nullable: true),
+                    CategoryId = table.Column<int>(type: "integer", nullable: false),
                     Type = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -69,7 +70,8 @@ namespace EkoMon.DomainModel.Migrations
                         name: "FK_Parameters_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Parameters_Units_UnitId",
                         column: x => x.UnitId,
@@ -85,7 +87,8 @@ namespace EkoMon.DomainModel.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     LocationId = table.Column<int>(type: "integer", nullable: false),
                     ParameterId = table.Column<int>(type: "integer", nullable: false),
-                    Value = table.Column<double>(type: "double precision", nullable: false)
+                    Value = table.Column<double>(type: "double precision", nullable: false),
+                    DateTime = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -167,7 +170,7 @@ namespace EkoMon.DomainModel.Migrations
                     { 21, 5, "Токсичність", 0, null },
                     { 22, 5, "Склад (вміст речовин)", 0, null },
                     { 23, 5, "Маса або об’єм", 0, null },
-                    { 24, 6, "Валовий внутрішній продукт", 0, null },
+                    { 24, 6, "Валовий внутрішній продукт", 0, 8 },
                     { 25, 6, "Вантажообіг", 0, 5 },
                     { 26, 6, "Пасажирообіг", 0, 6 },
                     { 27, 6, "Експорт товарів та послуг", 0, 7 },
