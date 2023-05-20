@@ -29,3 +29,32 @@
     background-color: darkred;
   }
 }
+
+.index-row {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  
+  &.rank-1{
+    background-color: darkred;
+    color: white;
+  }
+  &.rank-2{
+    background-color: indianred;
+    color: white;
+  }
+  &.rank-3{
+    background-color: darkgray;
+    color: black;
+  }
+  &.rank-4{
+    background-color: green;
+    color: white;
+  }
+  &.rank-5{
+    background-color: darkseagreen;
+    color: black;
+  }
+}

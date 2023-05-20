@@ -18,10 +18,35 @@ export class InfoPopupDialog implements OnInit {
     categories: ApiClientModule.CategoryModel[] = new Array<ApiClientModule.CategoryModel>();
     currentCategory?: ApiClientModule.CategoryModel;
 
+    currentCategoryIndicator?: ApiClientModule.IndicatorModel;
+
+    getIndicator = () =>
+        this.currentCategory
+            ? this.location.indicators.find(c => c.categoryId == this.currentCategory?.id)
+            : undefined;
+
     filteredLocationParameters = () => {
         if (this.currentCategory)
             return this.location.groupedLocationParameters.filter(c => c.parameter.categoryId == this.currentCategory?.id);
         return this.location.groupedLocationParameters;
+    }
+
+    getClassForIndicator = () => {
+
+        switch (this.getIndicator()?.rank) {
+            case ApiClientModule.IndexRank.VeryBad:
+                return "index-row rank-1";
+            case ApiClientModule.IndexRank.Bad:
+                return "index-row rank-2";
+            case ApiClientModule.IndexRank.Medium:
+                return "index-row rank-3";
+            case ApiClientModule.IndexRank.Good:
+                return "index-row rank-4";
+            case ApiClientModule.IndexRank.VeryGood:
+                return "index-row rank-5";
+            default:
+                throw new Error();
+        }
     }
 
     constructor(private dialogRef: MatDialogRef<InfoPopupDialog>, @Inject(MAT_DIALOG_DATA) public data: InfoPopupDialogModel, private apiClient: ApiClientModule.ApiClient, private httpClient: HttpClient, private dialog: MatDialog) {
@@ -39,6 +64,7 @@ export class InfoPopupDialog implements OnInit {
                 id: 0,
                 latitude: this.data.latitude,
                 longitude: this.data.longitude,
+                indicators: new Array<ApiClientModule.IndicatorModel>(),
                 groupedLocationParameters: new Array<ApiClientModule.GroupedLocationParameterModel>(),
                 title: this.data.title,
                 address: "",
@@ -61,18 +87,9 @@ export class InfoPopupDialog implements OnInit {
     }
 
     save() {
-        if (this.location.id == 0) {
-            this.apiClient.postLocation(this.location).subscribe(shortLocation => {
-                this.location.id = shortLocation.id;
-                this.apiClient.upsertLocation(this.location).subscribe(_ => {
-                    this.close();
-                })
-            })
-        } else {
-            this.apiClient.upsertLocation(this.location).subscribe(_ => {
-                this.close();
-            })
-        }
+        this.apiClient.upsertLocation(this.location).subscribe(_ => {
+            this.close();
+        })
     }
 
     remove() {
@@ -92,12 +109,11 @@ export class InfoPopupDialog implements OnInit {
             data: element,
         } as MatDialogConfig;
         let dialogRef = this.dialog.open(LocationParameterDialog, dialogConfig) as MatDialogRef<LocationParameterDialog, ApiClientModule.LocationParameterModel>;
-        dialogRef.afterClosed().subscribe(e => {
+        dialogRef.afterClosed().subscribe(async e => {
             if (e) {
-                this.apiClient.upsertLocationParameter(e, this.location.id).subscribe(async e => {
-                    this.location = await lastValueFrom(this.apiClient.getLocation(this.location.id));
-                })
+                this.apiClient.upsertLocationParameter(e, this.location.id)
             }
+            this.location = await lastValueFrom(this.apiClient.getLocation(this.location.id));
         })
     }
 
@@ -112,19 +128,17 @@ export class InfoPopupDialog implements OnInit {
             data: newLocationParameter,
         } as MatDialogConfig;
         let dialogRef = this.dialog.open(LocationParameterDialog, dialogConfig) as MatDialogRef<LocationParameterDialog, ApiClientModule.LocationParameterModel>;
-        dialogRef.afterClosed().subscribe(e => {
+        dialogRef.afterClosed().subscribe(async e => {
             if (e) {
-                this.apiClient.upsertLocationParameter(e, this.location.id).subscribe(async e => {
-                    this.location = await lastValueFrom(this.apiClient.getLocation(this.location.id));
-                })
+                this.apiClient.upsertLocationParameter(e, this.location.id)
             }
+            this.location = await lastValueFrom(this.apiClient.getLocation(this.location.id));
         })
     }
 
     openChart(locationParameters: ApiClientModule.LocationParameterModel[]) {
         const dialogConfig = {
             closeOnNavigation: false,
-            disableClose: true,
             data: locationParameters,
         } as MatDialogConfig;
         let dialogRef = this.dialog.open(ChartDialog, dialogConfig) as MatDialogRef<ChartDialog>;

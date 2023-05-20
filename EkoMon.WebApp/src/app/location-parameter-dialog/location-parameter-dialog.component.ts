@@ -10,7 +10,6 @@ import {lastValueFrom} from "rxjs";
 })
 export class LocationParameterDialog implements OnInit {
 
-    locationParameter: ApiClientModule.LocationParameterModel = null!;
     locationParameterClone: ApiClientModule.LocationParameterModel = null!;
     parameters: ApiClientModule.ParameterModel[] = null!;
     units: ApiClientModule.UnitModel[] = null!;
@@ -43,5 +42,11 @@ export class LocationParameterDialog implements OnInit {
 
     cancel() {
         this.dialogRef.close();
+    }
+
+    delete() {
+        this.apiClient.deleteLocationParameter(this.locationParameterClone.id).subscribe(_=>{
+            this.dialogRef.close();
+        })
     }
 }

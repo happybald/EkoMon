@@ -11,12 +11,9 @@ namespace EkoMon.DomainModel.ParseModels
 
         [JsonPropertyName("Measuring")]
         public List<int> Measuring { get; set; } = new();
-
-        [JsonPropertyName("Statistical")]
-        public List<int> Statistical { get; set; } = new();
     }
 
-    public class Parameter
+    public class Measurement
     {
         [JsonPropertyName("id")]
         public int Id { get; set; }
@@ -25,16 +22,16 @@ namespace EkoMon.DomainModel.ParseModels
         public string Name { get; set; }
 
         [JsonPropertyName("unit")]
-        public Unit? Unit { get; set; }
+        public Unit Unit { get; set; }
+
+        [JsonPropertyName("limit")]
+        public double? Limit { get; set; }
     }
 
     public class Root
     {
         [JsonPropertyName("Measurements")]
-        public List<Parameter> Measurements { get; set; } = new();
-
-        [JsonPropertyName("Statistics")]
-        public List<Parameter> Statistics { get; set; } = new();
+        public List<Measurement> Measurements { get; set; } = new();
 
         [JsonPropertyName("Indicators")]
         public List<Indicator> Indicators { get; set; } = new();

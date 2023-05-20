@@ -9,16 +9,11 @@
         public List<LocationParameter> LocationParameters { get; set; } = null!;
         public int CategoryId { get; set; }
         public Category Category { get; set; }
-        public ParameterType Type { get; set; }
+        public double? Limit { get; set; }
+        public double? Koef { get; set; }
         public Parameter(string title)
         {
             Title = title;
         }
-    }
-
-    public enum ParameterType
-    {
-        Measurable = 0,
-        Statistical = 1,
     }
 }

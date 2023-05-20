@@ -1,7 +1,4 @@
-﻿using System.Reflection;
-using System.Text.Json;
-using EkoMon.DomainModel.ParseModels;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 namespace EkoMon.DomainModel.Db
 {
     public class EntityContext : DbContext
@@ -15,60 +12,85 @@ namespace EkoMon.DomainModel.Db
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetAssembly(typeof(EntityContext)).Location), "categoriesParameters.json");
-            string json = File.ReadAllText(path);
-
-            var root = JsonSerializer.Deserialize<Root>(json);
-
-            var units = root.Measurements.Select(u => u.Unit).Concat(root.Statistics.Select(u => u.Unit)).Where(i => i != null).DistinctBy(i => i.Id).Select(o => new Unit(o.Name) { Id = o.Id }).ToList();
-            var categories = root.Indicators.Select(v => new Category() { Id = v.Id, Title = v.Name, }).ToList();
-            var parameters1 = root.Statistics.Select(v => new Parameter(v.Name) { Id = v.Id, UnitId = v.Unit?.Id, Type = ParameterType.Statistical, CategoryId = FindCategoryId(v)}).ToList();
-            var parameters2 = root.Measurements.Select(v => new Parameter(v.Name) { Id = v.Id, UnitId = v.Unit?.Id, Type = ParameterType.Measurable, CategoryId = FindCategoryId(v) }).ToList();
-            base.OnModelCreating(modelBuilder);
-
-            modelBuilder.Entity<Unit>().HasData(units);
-            modelBuilder.Entity<Category>().HasData(categories);
-            modelBuilder.Entity<Parameter>().HasData(parameters1.Concat(parameters2));
-
-            int FindCategoryId(ParseModels.Parameter parameter)
-            {
-                foreach (var indicator in root.Indicators)
-                {
-                    if (indicator.Statistical.Any(i => i == parameter.Id) || indicator.Measuring.Any(i => i == parameter.Id))
-                    {
-                        return indicator.Id;
-                    }
-                }
-                throw new ArgumentOutOfRangeException();
-            }
-
-            /*modelBuilder.Entity<Location>().HasData(
-                new Location("місто Київ", 50.4495382555955, 30.525422556705447) { Id = 1 },
-                new Location("Київський автомобільний ремонтний завод", 50.454814, 30.635263) { Id = 2 },
-                new Location("Станція для визначення рівня забруднення атмосферного повітря", 50.471031886528294, 30.51289857360725) { Id = 3 }
+            modelBuilder.Entity<Category>().HasData(
+                new Category("Стан повітря") { Id = 1 },
+                new Category("Стан водних ресурсів") { Id = 2 },
+                new Category("Стан ґрунтів") { Id = 3 },
+                new Category("Рівень радіації") { Id = 4 },
+                new Category("Відходи") { Id = 5 },
+                new Category("Економічний стан") { Id = 6 },
+                new Category("Стан здоров’я населення") { Id = 7 },
+                new Category("Енергетичний стан") { Id = 8 }
             );
-            modelBuilder.Entity<Unit>().HasData(new Unit("мкг/м³") { Id = 1 }, new Unit("°C") { Id = 2 }, new Unit("%") { Id = 3 }, new Unit("гПа") { Id = 4 });
+            modelBuilder.Entity<Unit>().HasData(
+                new Unit("мг/м³") { Id = 1 },
+                new Unit("мл") { Id = 2 },
+                new Unit("мг/екв/л") { Id = 3 },
+                new Unit("мг/л") { Id = 4 },
+                new Unit("мг/кг") { Id = 5 },
+                new Unit("нЗв/год") { Id = 6 },
+                new Unit("кг/день") { Id = 7 }
+            );
+
             modelBuilder.Entity<Parameter>().HasData(
-                new Parameter("PM1") { Id = 1, UnitId = 1 },
-                new Parameter("PM2.5") { Id = 2, UnitId = 1 },
-                new Parameter("PM10") { Id = 3, UnitId = 1 },
-                new Parameter("Температура") { Id = 4, UnitId = 2 },
-                new Parameter("Відносна вологість") { Id = 5, UnitId = 3 },
-                new Parameter("Атмосферний тиск") { Id = 6, UnitId = 4 },
-                new Parameter("AQI PM2.5") { Id = 7 }
+                new Parameter("Вміст пилу") { Id = 1, CategoryId = 1, UnitId = 1, Limit = 5.0 },
+                new Parameter("Азоту оксид") { Id = 2, CategoryId = 1, UnitId = 1, Limit = 0.06 },
+                new Parameter("Амонію сульфат") { Id = 3, CategoryId = 1, UnitId = 1, Limit = 0.1 },
+                new Parameter("Оксид вуглецю") { Id = 4, CategoryId = 1, UnitId = 1, Limit = 3.0 },
+                new Parameter("Формальдегід") { Id = 5, CategoryId = 1, UnitId = 1, Limit = 0.003 },
+                new Parameter("Свинець") { Id = 6, CategoryId = 1, UnitId = 1, Limit = 0.0003 },
+                new Parameter("Бенз(а)пірен") { Id = 7, CategoryId = 1, UnitId = 1, Limit = 0.0001 },
+                new Parameter("Мікробне число") { Id = 8, CategoryId = 2, UnitId = null, Limit = 100 },
+                new Parameter("Колі-індекс") { Id = 9, CategoryId = 2, UnitId = null, Limit = 3 },
+                new Parameter("Колі-титр") { Id = 10, CategoryId = 2, UnitId = 2, Limit = 300.0 },
+                new Parameter("Твердість") { Id = 11, CategoryId = 2, UnitId = 3, Limit = 7.0 },
+                new Parameter("Щільний осадок") { Id = 12, CategoryId = 2, UnitId = 4, Limit = 1000.0 },
+                new Parameter("Залізо") { Id = 13, CategoryId = 2, UnitId = 4, Limit = 0.3 },
+                new Parameter("Сульфати") { Id = 14, CategoryId = 2, UnitId = 4, Limit = 500.0 },
+                new Parameter("Хлориди") { Id = 15, CategoryId = 2, UnitId = 4, Limit = 350.0 },
+                new Parameter("Мідь") { Id = 16, CategoryId = 2, UnitId = 4, Limit = 1.0 },
+                new Parameter("Марганець") { Id = 17, CategoryId = 2, UnitId = 4, Limit = 5.0 },
+                new Parameter("Фосфати") { Id = 18, CategoryId = 2, UnitId = 4, Limit = 0.1 },
+                new Parameter("Нітрати") { Id = 19, CategoryId = 2, UnitId = 4, Limit = 10.0 },
+                new Parameter("Нітрити") { Id = 20, CategoryId = 2, UnitId = 4, Limit = 0.002 },
+                new Parameter("Фтор") { Id = 21, CategoryId = 2, UnitId = 4, Limit = 1.5 },
+                new Parameter("Свинець") { Id = 22, CategoryId = 2, UnitId = 4, Limit = 0.03 },
+                new Parameter("Миш’як") { Id = 23, CategoryId = 2, UnitId = 4, Limit = 0.05 },
+                new Parameter("Ртуть") { Id = 24, CategoryId = 2, UnitId = 4, Limit = 0.005 },
+                new Parameter("Ціаніди") { Id = 25, CategoryId = 2, UnitId = 4, Limit = 0.1 },
+                new Parameter("Алюміній") { Id = 26, CategoryId = 2, UnitId = 4, Limit = 0.1 },
+                new Parameter("Молібден") { Id = 27, CategoryId = 2, UnitId = 4, Limit = 3.5 },
+                new Parameter("Селен") { Id = 28, CategoryId = 2, UnitId = 4, Limit = 0.001 },
+                new Parameter("Стронцій") { Id = 29, CategoryId = 2, UnitId = 4, Limit = 0.7 },
+                new Parameter("Берилій") { Id = 30, CategoryId = 2, UnitId = 4, Limit = 0.0002 },
+                new Parameter("pH") { Id = 31, CategoryId = 2, UnitId = null, Limit = 8.0 },
+                new Parameter("Бенз(а)пірен") { Id = 32, CategoryId = 3, UnitId = 5, Limit = 0.02 },
+                new Parameter("Бензол") { Id = 33, CategoryId = 3, UnitId = 5, Limit = 0.3 },
+                new Parameter("Марганець") { Id = 34, CategoryId = 3, UnitId = 5, Limit = 1500.0 },
+                new Parameter("Ртуть") { Id = 35, CategoryId = 3, UnitId = 5, Limit = 2.1 },
+                new Parameter("Свинець") { Id = 36, CategoryId = 3, UnitId = 5, Limit = 32.0 },
+                new Parameter("Сірка") { Id = 37, CategoryId = 3, UnitId = 5, Limit = 160.0 },
+                new Parameter("Сірководень") { Id = 38, CategoryId = 3, UnitId = 5, Limit = 0.4 },
+                new Parameter("Кадмій") { Id = 39, CategoryId = 3, UnitId = 5, Limit = 1.5 },
+                new Parameter("Нітрати") { Id = 40, CategoryId = 3, UnitId = 5, Limit = 130.0 },
+                new Parameter("Концентрація продуктів ядерного розпаду") { Id = 41, CategoryId = 4, UnitId = 6 },
+                new Parameter("Відходи виробництва") { Id = 42, CategoryId = 5, UnitId = 7, Koef = 0.8 },
+                new Parameter("Гірничі породи") { Id = 43, CategoryId = 5, UnitId = 7, Koef = 0.9 },
+                new Parameter("Залишкові продукти первинної обробки сировини") { Id = 44, CategoryId = 5, UnitId = 7, Koef = 0.7 },
+                new Parameter("Новоутворені речовини та їх суміші") { Id = 45, CategoryId = 5, UnitId = 7, Koef = 0.6 },
+                new Parameter("Залишкові продукти сільськогосподарського виробництва") { Id = 46, CategoryId = 5, UnitId = 7, Koef = 0.5 },
+                new Parameter("Бракована та некондиційна продукція") { Id = 47, CategoryId = 5, UnitId = 7, Koef = 0.6 },
+                new Parameter("Неідентифікована продукція") { Id = 48, CategoryId = 5, UnitId = 7, Koef = 0.4 },
+                new Parameter("Відходи споживання") { Id = 49, CategoryId = 5, UnitId = 7, Koef = 0.3 },
+                new Parameter("Побутові відходи") { Id = 50, CategoryId = 5, UnitId = 7, Koef = 0.2 },
+                new Parameter("Осади очисних споруд") { Id = 51, CategoryId = 5, UnitId = 7, Koef = 0.7 },
+                new Parameter("Залишки від медичного та ветеринарного обслуговування") { Id = 52, CategoryId = 5, UnitId = 7, Koef = 0.8 },
+                new Parameter("Залишкові продукти інших видів діяльності") { Id = 53, CategoryId = 5, UnitId = 7, Koef = 0.6 },
+                new Parameter("Радіоактивні відходи.") { Id = 54, CategoryId = 5, UnitId = 7, Koef = 1 }
             );
 
-            modelBuilder.Entity<LocationParameter>().HasData(
-                new LocationParameter() { Id = 1, LocationId = 3, ParameterId = 1, Value = 2.5 },
-                new LocationParameter() { Id = 2, LocationId = 3, ParameterId = 2, Value = 3.1 },
-                new LocationParameter() { Id = 3, LocationId = 3, ParameterId = 3, Value = 5.7 },
-                new LocationParameter() { Id = 4, LocationId = 3, ParameterId = 4, Value = 5.5 },
-                new LocationParameter() { Id = 5, LocationId = 3, ParameterId = 5, Value = 57.7 },
-                new LocationParameter() { Id = 6, LocationId = 3, ParameterId = 6, Value = 1006.7 },
-                new LocationParameter() { Id = 7, LocationId = 3, ParameterId = 7, Value = 13 }
-            );*/
         }
-        
+
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
         {
             configurationBuilder.Properties<DateTime>().HaveConversion<DateTimeConverter>();

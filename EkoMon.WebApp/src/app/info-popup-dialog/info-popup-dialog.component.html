@@ -2,7 +2,7 @@
     Loading...
 </ng-container>
 
-<ng-container *ngIf="location">
+<ng-container *ngIf="location" >
     <mat-dialog-content style="display: flex; flex-direction: row; gap: 8px">
         <div style="display: flex; flex-direction: column; flex: 2">
             <span style="font-size: 12px; align-self: center;">{{location.latitude}}, {{location.longitude}}</span>
@@ -22,29 +22,43 @@
                     {{category.title}}
                 </mat-radio-button>
             </mat-radio-group>
+            <ng-container *ngIf="getIndicator()">
+                <mat-divider></mat-divider>
+                <div class="{{getClassForIndicator()}}">
+                    <span> Index: {{getIndicator()?.value | number:'1.0-6'}}</span>
+                    <span> Rank: {{getIndicator()?.rank}}</span>
+                </div>
+            </ng-container>
             <mat-divider></mat-divider>
             <span *ngIf="!filteredLocationParameters().length" style="height: 500px;">Add some parameters</span>
             <div style="height: 500px; max-width: 100%; overflow: auto;" *ngIf="filteredLocationParameters().length">
                 <mat-accordion>
                     <mat-expansion-panel *ngFor="let group of filteredLocationParameters()">
                         <mat-expansion-panel-header>
-                            <mat-panel-title>
+                            <mat-panel-title style="line-height: normal">
                                 {{group.parameter.title}}
                             </mat-panel-title>
-                            <mat-panel-description>
-                                {{group.locationParameters[0].value}} {{group.parameter.unit?.title}}
+                            <mat-panel-description style="line-height: normal">
+                                <span *ngIf="!group.parameter.limit">{{group.locationParameters[0].value | number:'1.0-6'}} {{group.parameter.unit?.title}}</span>
+                                <span *ngIf="group.parameter.limit">{{group.locationParameters[0].value | number:'1.0-6'}} / <span style="font-weight: bold">{{group.parameter.limit | number:'1.0-6'}}</span> {{group.parameter.unit?.title}}</span>
+                                
                                 <span
                                         style="margin-left: auto"
                                         class="badge">{{group.locationParameters[0].dateTime | date:'dd.MM.yyyy'}}</span>
                                 <span class="badge badge-red" *ngIf="group.locationParameters.length > 1">chart</span>
                             </mat-panel-description>
                         </mat-expansion-panel-header>
-                        <div  style="display: flex; flex-direction: column; gap:8px;">
-                            <button mat-flat-button color="accent" (click)="openChart(group.locationParameters)"  *ngIf="group.locationParameters.length > 1">chart</button>
-                            <div *ngFor="let locationParameter of group.locationParameters" style="display:flex; justify-content:space-between; align-items: center">
+                        <div style="display: flex; flex-direction: column; gap:8px;">
+                            <button mat-flat-button color="accent" (click)="openChart(group.locationParameters)"
+                                    *ngIf="group.locationParameters.length > 1">chart
+                            </button>
+                            <div *ngFor="let locationParameter of group.locationParameters"
+                                 style="display:flex; justify-content:space-between; align-items: center">
                                 <span class="badge">{{locationParameter.dateTime | date:'dd.MM.yyyy'}}</span>
-                                <span>{{locationParameter.value}} {{group.parameter.unit?.title}}</span>
-                                <button mat-flat-button color="primary" (click)="openLocationParameter(locationParameter)">Edit</button>
+                                <span>{{locationParameter.value | number:'1.0-6'}} {{group.parameter.unit?.title}}</span>
+                                <button mat-flat-button color="primary"
+                                        (click)="openLocationParameter(locationParameter)">Edit
+                                </button>
                             </div>
                         </div>
                     </mat-expansion-panel>

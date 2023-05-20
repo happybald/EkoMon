@@ -1,7 +1,9 @@
 using System.Text.Json.Serialization;
 using EkoMon.DomainModel.Db;
 using EkoMon.DomainModel.Models;
+using EkoMon.DomainModel.Services;
 using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 const string myAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -25,6 +27,15 @@ builder.Services.AddDbContext<EntityContext>(options =>
 {
     options.UseNpgsql(appSettings.DbConnection, o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery));
 });
+
+
+builder.Services.AddTransient<AirPollutionIndicator>();
+builder.Services.AddTransient<WaterPollutionIndicator>();
+builder.Services.AddTransient<EarthPollutionIndicator>();
+builder.Services.AddTransient<RadiationPollutionIndicator>();
+builder.Services.AddTransient<TrashPollutionIndicator>();
+
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerDocument();
 

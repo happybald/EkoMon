@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EkoMon.DomainModel.Migrations
 {
     [DbContext(typeof(EntityContext))]
-    [Migration("20230519182325_Initial")]
+    [Migration("20230520170014_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,6 +95,9 @@ namespace EkoMon.DomainModel.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("Area")
+                        .HasColumnType("integer");
+
                     b.Property<double>("Latitude")
                         .HasColumnType("double precision");
 
@@ -150,12 +153,15 @@ namespace EkoMon.DomainModel.Migrations
                     b.Property<int>("CategoryId")
                         .HasColumnType("integer");
 
+                    b.Property<double?>("Koef")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Limit")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
 
                     b.Property<int?>("UnitId")
                         .HasColumnType("integer");
@@ -171,362 +177,431 @@ namespace EkoMon.DomainModel.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 34,
-                            CategoryId = 1,
-                            Title = "Індекс якості повітря",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 35,
-                            CategoryId = 2,
-                            Title = "Індекс забрудненості води",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 36,
-                            CategoryId = 3,
-                            Title = "Бал бонітету для складового грунту",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 37,
-                            CategoryId = 4,
-                            Title = "Ймовірність критичної події",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 38,
-                            CategoryId = 4,
-                            Title = "Ризики радіаційного впливу на довкілля та здоров'я населення",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 39,
-                            CategoryId = 6,
-                            Title = "Індекс промислової продукції",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 40,
-                            CategoryId = 6,
-                            Title = "Індекс обсягу сільськогосподарського виробництва",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 41,
-                            CategoryId = 6,
-                            Title = "Індекс будівельної продукції",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 42,
-                            CategoryId = 6,
-                            Title = "Індекс споживчих цін",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 43,
-                            CategoryId = 6,
-                            Title = "Індекс цін виробників промислової продукції",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 44,
-                            CategoryId = 7,
-                            Title = "Ризики захворювання",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 45,
-                            CategoryId = 7,
-                            Title = "Прогноз захворювання",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 46,
-                            CategoryId = 7,
-                            Title = "Прогноз тривалості життя",
-                            Type = 1,
-                            UnitId = 13
-                        },
-                        new
-                        {
-                            Id = 47,
-                            CategoryId = 8,
-                            Title = "Середні обсяги споживання за місяць та рік",
-                            Type = 1
-                        },
-                        new
-                        {
-                            Id = 48,
-                            CategoryId = 8,
-                            Title = "Енергоефективність будівлі або виробництва",
-                            Type = 1
-                        },
-                        new
-                        {
                             Id = 1,
                             CategoryId = 1,
+                            Limit = 5.0,
                             Title = "Вміст пилу",
-                            Type = 0,
                             UnitId = 1
                         },
                         new
                         {
                             Id = 2,
                             CategoryId = 1,
-                            Title = "Двоокис азоту (NO2)",
-                            Type = 0,
+                            Limit = 0.059999999999999998,
+                            Title = "Азоту оксид",
                             UnitId = 1
                         },
                         new
                         {
                             Id = 3,
                             CategoryId = 1,
-                            Title = "Двоокис сірки (SO2)",
-                            Type = 0,
+                            Limit = 0.10000000000000001,
+                            Title = "Амонію сульфат",
                             UnitId = 1
                         },
                         new
                         {
                             Id = 4,
                             CategoryId = 1,
+                            Limit = 3.0,
                             Title = "Оксид вуглецю",
-                            Type = 0,
                             UnitId = 1
                         },
                         new
                         {
                             Id = 5,
                             CategoryId = 1,
-                            Title = "Формальдегід (H2CO)",
-                            Type = 0,
+                            Limit = 0.0030000000000000001,
+                            Title = "Формальдегід",
                             UnitId = 1
                         },
                         new
                         {
                             Id = 6,
                             CategoryId = 1,
+                            Limit = 0.00029999999999999997,
                             Title = "Свинець",
-                            Type = 0,
                             UnitId = 1
                         },
                         new
                         {
                             Id = 7,
                             CategoryId = 1,
+                            Limit = 0.0001,
                             Title = "Бенз(а)пірен",
-                            Type = 0,
                             UnitId = 1
                         },
                         new
                         {
                             Id = 8,
                             CategoryId = 2,
-                            Title = "Показники епідемічної безпеки (мікробіологічні, паразитарні)",
-                            Type = 0
+                            Limit = 100.0,
+                            Title = "Мікробне число"
                         },
                         new
                         {
                             Id = 9,
                             CategoryId = 2,
-                            Title = "Санітарно-хімічні (органолептичні, фізико-хімічні, санітарно-токсикологічні)",
-                            Type = 0
+                            Limit = 3.0,
+                            Title = "Колі-індекс"
                         },
                         new
                         {
                             Id = 10,
                             CategoryId = 2,
-                            Title = "Радіаційні показники",
-                            Type = 0
-                        },
-                        new
-                        {
-                            Id = 11,
-                            CategoryId = 3,
-                            Title = "Гумус",
-                            Type = 0,
+                            Limit = 300.0,
+                            Title = "Колі-титр",
                             UnitId = 2
                         },
                         new
                         {
-                            Id = 12,
-                            CategoryId = 3,
-                            Title = "Рухомі сполуки фосфору (P2O5)",
-                            Type = 0,
+                            Id = 11,
+                            CategoryId = 2,
+                            Limit = 7.0,
+                            Title = "Твердість",
                             UnitId = 3
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CategoryId = 2,
+                            Limit = 1000.0,
+                            Title = "Щільний осадок",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 13,
-                            CategoryId = 3,
-                            Title = "Рухомі сполуки калію (K2O)",
-                            Type = 0,
-                            UnitId = 3
+                            CategoryId = 2,
+                            Limit = 0.29999999999999999,
+                            Title = "Залізо",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 14,
-                            CategoryId = 3,
-                            Title = "Засоленість",
-                            Type = 0,
+                            CategoryId = 2,
+                            Limit = 500.0,
+                            Title = "Сульфати",
                             UnitId = 4
                         },
                         new
                         {
                             Id = 15,
-                            CategoryId = 3,
-                            Title = "Солонцюватість",
-                            Type = 0,
+                            CategoryId = 2,
+                            Limit = 350.0,
+                            Title = "Хлориди",
                             UnitId = 4
                         },
                         new
                         {
                             Id = 16,
-                            CategoryId = 3,
-                            Title = "Забруднення хімічними речовинами",
-                            Type = 0
+                            CategoryId = 2,
+                            Limit = 1.0,
+                            Title = "Мідь",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 17,
-                            CategoryId = 3,
-                            Title = "pH",
-                            Type = 0
+                            CategoryId = 2,
+                            Limit = 5.0,
+                            Title = "Марганець",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 18,
-                            CategoryId = 4,
-                            Title = "Концентрація продуктів ядерного розпаду з коротким часом життя",
-                            Type = 0
+                            CategoryId = 2,
+                            Limit = 0.10000000000000001,
+                            Title = "Фосфати",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 19,
-                            CategoryId = 4,
-                            Title = "Концентрація продуктів ядерного розпаду з середнім часом життя",
-                            Type = 0
+                            CategoryId = 2,
+                            Limit = 10.0,
+                            Title = "Нітрати",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 20,
-                            CategoryId = 5,
-                            Title = "Клас небезпеки",
-                            Type = 0
+                            CategoryId = 2,
+                            Limit = 0.002,
+                            Title = "Нітрити",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 21,
-                            CategoryId = 5,
-                            Title = "Токсичність",
-                            Type = 0
+                            CategoryId = 2,
+                            Limit = 1.5,
+                            Title = "Фтор",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 22,
-                            CategoryId = 5,
-                            Title = "Склад (вміст речовин)",
-                            Type = 0
+                            CategoryId = 2,
+                            Limit = 0.029999999999999999,
+                            Title = "Свинець",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 23,
-                            CategoryId = 5,
-                            Title = "Маса або об’єм",
-                            Type = 0
+                            CategoryId = 2,
+                            Limit = 0.050000000000000003,
+                            Title = "Миш’як",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 24,
-                            CategoryId = 6,
-                            Title = "Валовий внутрішній продукт",
-                            Type = 0,
-                            UnitId = 8
+                            CategoryId = 2,
+                            Limit = 0.0050000000000000001,
+                            Title = "Ртуть",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 25,
-                            CategoryId = 6,
-                            Title = "Вантажообіг",
-                            Type = 0,
-                            UnitId = 5
+                            CategoryId = 2,
+                            Limit = 0.10000000000000001,
+                            Title = "Ціаніди",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 26,
-                            CategoryId = 6,
-                            Title = "Пасажирообіг",
-                            Type = 0,
-                            UnitId = 6
+                            CategoryId = 2,
+                            Limit = 0.10000000000000001,
+                            Title = "Алюміній",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 27,
-                            CategoryId = 6,
-                            Title = "Експорт товарів та послуг",
-                            Type = 0,
-                            UnitId = 7
+                            CategoryId = 2,
+                            Limit = 3.5,
+                            Title = "Молібден",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 28,
-                            CategoryId = 6,
-                            Title = "Імпорт товарів та послуг",
-                            Type = 0,
-                            UnitId = 7
+                            CategoryId = 2,
+                            Limit = 0.001,
+                            Title = "Селен",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 29,
-                            CategoryId = 6,
-                            Title = "Заробітна плата",
-                            Type = 0,
-                            UnitId = 8
+                            CategoryId = 2,
+                            Limit = 0.69999999999999996,
+                            Title = "Стронцій",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 30,
-                            CategoryId = 7,
-                            Title = "Обсяги використання води",
-                            Type = 0,
-                            UnitId = 9
+                            CategoryId = 2,
+                            Limit = 0.00020000000000000001,
+                            Title = "Берилій",
+                            UnitId = 4
                         },
                         new
                         {
                             Id = 31,
-                            CategoryId = 7,
-                            Title = "Електроенергія",
-                            Type = 0,
-                            UnitId = 10
+                            CategoryId = 2,
+                            Limit = 8.0,
+                            Title = "pH"
                         },
                         new
                         {
                             Id = 32,
-                            CategoryId = 7,
-                            Title = "Газ",
-                            Type = 0,
-                            UnitId = 11
+                            CategoryId = 3,
+                            Limit = 0.02,
+                            Title = "Бенз(а)пірен",
+                            UnitId = 5
                         },
                         new
                         {
                             Id = 33,
-                            CategoryId = 7,
-                            Title = "Теплова енергія за кожен місяць",
-                            Type = 0,
-                            UnitId = 12
+                            CategoryId = 3,
+                            Limit = 0.29999999999999999,
+                            Title = "Бензол",
+                            UnitId = 5
+                        },
+                        new
+                        {
+                            Id = 34,
+                            CategoryId = 3,
+                            Limit = 1500.0,
+                            Title = "Марганець",
+                            UnitId = 5
+                        },
+                        new
+                        {
+                            Id = 35,
+                            CategoryId = 3,
+                            Limit = 2.1000000000000001,
+                            Title = "Ртуть",
+                            UnitId = 5
+                        },
+                        new
+                        {
+                            Id = 36,
+                            CategoryId = 3,
+                            Limit = 32.0,
+                            Title = "Свинець",
+                            UnitId = 5
+                        },
+                        new
+                        {
+                            Id = 37,
+                            CategoryId = 3,
+                            Limit = 160.0,
+                            Title = "Сірка",
+                            UnitId = 5
+                        },
+                        new
+                        {
+                            Id = 38,
+                            CategoryId = 3,
+                            Limit = 0.40000000000000002,
+                            Title = "Сірководень",
+                            UnitId = 5
+                        },
+                        new
+                        {
+                            Id = 39,
+                            CategoryId = 3,
+                            Limit = 1.5,
+                            Title = "Кадмій",
+                            UnitId = 5
+                        },
+                        new
+                        {
+                            Id = 40,
+                            CategoryId = 3,
+                            Limit = 130.0,
+                            Title = "Нітрати",
+                            UnitId = 5
+                        },
+                        new
+                        {
+                            Id = 41,
+                            CategoryId = 4,
+                            Title = "Концентрація продуктів ядерного розпаду",
+                            UnitId = 6
+                        },
+                        new
+                        {
+                            Id = 42,
+                            CategoryId = 5,
+                            Koef = 0.80000000000000004,
+                            Title = "Відходи виробництва",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 43,
+                            CategoryId = 5,
+                            Koef = 0.90000000000000002,
+                            Title = "Гірничі породи",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 44,
+                            CategoryId = 5,
+                            Koef = 0.69999999999999996,
+                            Title = "Залишкові продукти первинної обробки сировини",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 45,
+                            CategoryId = 5,
+                            Koef = 0.59999999999999998,
+                            Title = "Новоутворені речовини та їх суміші",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 46,
+                            CategoryId = 5,
+                            Koef = 0.5,
+                            Title = "Залишкові продукти сільськогосподарського виробництва",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 47,
+                            CategoryId = 5,
+                            Koef = 0.59999999999999998,
+                            Title = "Бракована та некондиційна продукція",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 48,
+                            CategoryId = 5,
+                            Koef = 0.40000000000000002,
+                            Title = "Неідентифікована продукція",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 49,
+                            CategoryId = 5,
+                            Koef = 0.29999999999999999,
+                            Title = "Відходи споживання",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 50,
+                            CategoryId = 5,
+                            Koef = 0.20000000000000001,
+                            Title = "Побутові відходи",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 51,
+                            CategoryId = 5,
+                            Koef = 0.69999999999999996,
+                            Title = "Осади очисних споруд",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 52,
+                            CategoryId = 5,
+                            Koef = 0.80000000000000004,
+                            Title = "Залишки від медичного та ветеринарного обслуговування",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 53,
+                            CategoryId = 5,
+                            Koef = 0.59999999999999998,
+                            Title = "Залишкові продукти інших видів діяльності",
+                            UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 54,
+                            CategoryId = 5,
+                            Koef = 1.0,
+                            Title = "Радіоактивні відходи.",
+                            UnitId = 7
                         });
                 });
 
@@ -555,62 +630,32 @@ namespace EkoMon.DomainModel.Migrations
                         new
                         {
                             Id = 2,
-                            Title = "%"
+                            Title = "мл"
                         },
                         new
                         {
                             Id = 3,
-                            Title = "мг/кг"
+                            Title = "мг/екв/л"
                         },
                         new
                         {
                             Id = 4,
-                            Title = "г/л"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Title = "грн."
+                            Title = "мг/л"
                         },
                         new
                         {
                             Id = 5,
-                            Title = "тонн"
+                            Title = "мг/кг"
                         },
                         new
                         {
                             Id = 6,
-                            Title = "чол."
+                            Title = "нЗв/год"
                         },
                         new
                         {
                             Id = 7,
-                            Title = "млн. дол."
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Title = "м³"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Title = "кВт·год"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Title = "м³"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Title = "Гкал"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            Title = "роки"
+                            Title = "кг/день"
                         });
                 });
 

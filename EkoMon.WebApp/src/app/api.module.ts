@@ -458,58 +458,6 @@ export class ApiClient {
         return _observableOf(null as any);
     }
 
-    postLocation(location: LocationShortModel): Observable<LocationShortModel> {
-        let url_ = this.baseUrl + "/Api/PostLocation";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(location);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processPostLocation(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processPostLocation(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<LocationShortModel>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<LocationShortModel>;
-        }));
-    }
-
-    protected processPostLocation(response: HttpResponseBase): Observable<LocationShortModel> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = LocationShortModel.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
     deleteLocation(id: number): Observable<FileResponse | null> {
         let url_ = this.baseUrl + "/Api/DeleteLocation/{id}";
         if (id === undefined || id === null)
@@ -781,11 +729,13 @@ export interface ILocationShortModel {
 export class LocationModel extends LocationShortModel implements ILocationModel {
     address!: string;
     groupedLocationParameters!: GroupedLocationParameterModel[];
+    indicators!: IndicatorModel[];
 
     constructor(data?: ILocationModel) {
         super(data);
         if (!data) {
             this.groupedLocationParameters = [];
+            this.indicators = [];
         }
     }
 
@@ -797,6 +747,11 @@ export class LocationModel extends LocationShortModel implements ILocationModel 
                 this.groupedLocationParameters = [] as any;
                 for (let item of _data["groupedLocationParameters"])
                     this.groupedLocationParameters!.push(GroupedLocationParameterModel.fromJS(item));
+            }
+            if (Array.isArray(_data["indicators"])) {
+                this.indicators = [] as any;
+                for (let item of _data["indicators"])
+                    this.indicators!.push(IndicatorModel.fromJS(item));
             }
         }
     }
@@ -816,6 +771,11 @@ export class LocationModel extends LocationShortModel implements ILocationModel 
             for (let item of this.groupedLocationParameters)
                 data["groupedLocationParameters"].push(item.toJSON());
         }
+        if (Array.isArray(this.indicators)) {
+            data["indicators"] = [];
+            for (let item of this.indicators)
+                data["indicators"].push(item.toJSON());
+        }
         super.toJSON(data);
         return data;
     }
@@ -831,6 +791,7 @@ export class LocationModel extends LocationShortModel implements ILocationModel 
 export interface ILocationModel extends ILocationShortModel {
     address: string;
     groupedLocationParameters: GroupedLocationParameterModel[];
+    indicators: IndicatorModel[];
 }
 
 export class GroupedLocationParameterModel implements IGroupedLocationParameterModel {
@@ -896,6 +857,7 @@ export class ParameterModel implements IParameterModel {
     id!: number;
     categoryId!: number;
     title!: string;
+    limit?: number | undefined;
     unit?: UnitModel | undefined;
 
     constructor(data?: IParameterModel) {
@@ -912,6 +874,7 @@ export class ParameterModel implements IParameterModel {
             this.id = _data["id"];
             this.categoryId = _data["categoryId"];
             this.title = _data["title"];
+            this.limit = _data["limit"];
             this.unit = _data["unit"] ? UnitModel.fromJS(_data["unit"]) : <any>undefined;
         }
     }
@@ -928,6 +891,7 @@ export class ParameterModel implements IParameterModel {
         data["id"] = this.id;
         data["categoryId"] = this.categoryId;
         data["title"] = this.title;
+        data["limit"] = this.limit;
         data["unit"] = this.unit ? this.unit.toJSON() : <any>undefined;
         return data;
     }
@@ -944,6 +908,7 @@ export interface IParameterModel {
     id: number;
     categoryId: number;
     title: string;
+    limit?: number | undefined;
     unit?: UnitModel | undefined;
 }
 
@@ -1050,6 +1015,65 @@ export interface ILocationParameterModel {
     parameter: ParameterModel;
     value: number;
     dateTime: Date;
+}
+
+export class IndicatorModel implements IIndicatorModel {
+    categoryId!: number;
+    value!: number;
+    rank!: IndexRank;
+
+    constructor(data?: IIndicatorModel) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.categoryId = _data["categoryId"];
+            this.value = _data["value"];
+            this.rank = _data["rank"];
+        }
+    }
+
+    static fromJS(data: any): IndicatorModel {
+        data = typeof data === 'object' ? data : {};
+        let result = new IndicatorModel();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["categoryId"] = this.categoryId;
+        data["value"] = this.value;
+        data["rank"] = this.rank;
+        return data;
+    }
+
+    clone(): IndicatorModel {
+        const json = this.toJSON();
+        let result = new IndicatorModel();
+        result.init(json);
+        return result;
+    }
+}
+
+export interface IIndicatorModel {
+    categoryId: number;
+    value: number;
+    rank: IndexRank;
+}
+
+export enum IndexRank {
+    VeryBad = 1,
+    Bad = 2,
+    Medium = 3,
+    Good = 4,
+    VeryGood = 5,
 }
 
 export interface FileResponse {
