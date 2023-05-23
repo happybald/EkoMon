@@ -111,7 +111,7 @@ export class InfoPopupDialog implements OnInit {
         let dialogRef = this.dialog.open(LocationParameterDialog, dialogConfig) as MatDialogRef<LocationParameterDialog, ApiClientModule.LocationParameterModel>;
         dialogRef.afterClosed().subscribe(async e => {
             if (e) {
-                this.apiClient.upsertLocationParameter(e, this.location.id)
+                await lastValueFrom(this.apiClient.upsertLocationParameter(e, this.location.id));
             }
             this.location = await lastValueFrom(this.apiClient.getLocation(this.location.id));
         })
@@ -130,7 +130,7 @@ export class InfoPopupDialog implements OnInit {
         let dialogRef = this.dialog.open(LocationParameterDialog, dialogConfig) as MatDialogRef<LocationParameterDialog, ApiClientModule.LocationParameterModel>;
         dialogRef.afterClosed().subscribe(async e => {
             if (e) {
-                this.apiClient.upsertLocationParameter(e, this.location.id)
+                await lastValueFrom(this.apiClient.upsertLocationParameter(e, this.location.id))
             }
             this.location = await lastValueFrom(this.apiClient.getLocation(this.location.id));
         })
