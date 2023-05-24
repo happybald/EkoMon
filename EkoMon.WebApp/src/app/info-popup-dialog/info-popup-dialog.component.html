@@ -25,7 +25,7 @@
             <ng-container *ngIf="getIndicator()">
                 <mat-divider></mat-divider>
                 <div class="{{getClassForIndicator()}}">
-                    <span> Index: {{getIndicator()?.value | number:'1.0-6'}}</span>
+                    <span> Index: {{getIndicator()?.value}}</span>
                     <span> Rank: {{getIndicator()?.rank}}</span>
                 </div>
             </ng-container>

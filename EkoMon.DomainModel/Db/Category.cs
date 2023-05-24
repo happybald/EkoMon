@@ -1,5 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
-namespace EkoMon.DomainModel.Db
+﻿namespace EkoMon.DomainModel.Db
 {
     public class Category
     {

@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EkoMon.DomainModel.Migrations
 {
     [DbContext(typeof(EntityContext))]
-    [Migration("20230520170014_Initial")]
+    [Migration("20230524203009_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -600,8 +600,78 @@ namespace EkoMon.DomainModel.Migrations
                             Id = 54,
                             CategoryId = 5,
                             Koef = 1.0,
-                            Title = "Радіоактивні відходи.",
+                            Title = "Радіоактивні відходи",
                             UnitId = 7
+                        },
+                        new
+                        {
+                            Id = 55,
+                            CategoryId = 6,
+                            Title = "Експорт товарів та послуг",
+                            UnitId = 8
+                        },
+                        new
+                        {
+                            Id = 56,
+                            CategoryId = 6,
+                            Title = "Імпорт товарів та послуг",
+                            UnitId = 8
+                        },
+                        new
+                        {
+                            Id = 57,
+                            CategoryId = 6,
+                            Title = "Заробітна плата",
+                            UnitId = 8
+                        },
+                        new
+                        {
+                            Id = 58,
+                            CategoryId = 7,
+                            Title = "Кількість людей",
+                            UnitId = 9
+                        },
+                        new
+                        {
+                            Id = 59,
+                            CategoryId = 7,
+                            Title = "Кількість інвалідів",
+                            UnitId = 9
+                        },
+                        new
+                        {
+                            Id = 60,
+                            CategoryId = 7,
+                            Title = "Кількість хронічних хвороб",
+                            UnitId = 9
+                        },
+                        new
+                        {
+                            Id = 61,
+                            CategoryId = 8,
+                            Title = "Обсяги використання води",
+                            UnitId = 10
+                        },
+                        new
+                        {
+                            Id = 62,
+                            CategoryId = 8,
+                            Title = "Обсяги використання електроенергії",
+                            UnitId = 11
+                        },
+                        new
+                        {
+                            Id = 63,
+                            CategoryId = 8,
+                            Title = "Обсяги використання газу",
+                            UnitId = 10
+                        },
+                        new
+                        {
+                            Id = 64,
+                            CategoryId = 8,
+                            Title = "Обсяги використання теплової енергії",
+                            UnitId = 11
                         });
                 });
 
@@ -656,6 +726,26 @@ namespace EkoMon.DomainModel.Migrations
                         {
                             Id = 7,
                             Title = "кг/день"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Title = "тис. грн"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Title = "чол."
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Title = "м³"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Title = "кВт·год"
                         });
                 });
 

@@ -29,7 +29,11 @@ namespace EkoMon.DomainModel.Db
                 new Unit("мг/л") { Id = 4 },
                 new Unit("мг/кг") { Id = 5 },
                 new Unit("нЗв/год") { Id = 6 },
-                new Unit("кг/день") { Id = 7 }
+                new Unit("кг/день") { Id = 7 },
+                new Unit("тис. грн") { Id = 8 },
+                new Unit("чол.") { Id = 9 },
+                new Unit("м³") { Id = 10 },
+                new Unit("кВт·год") { Id = 11 }
             );
 
             modelBuilder.Entity<Parameter>().HasData(
@@ -86,7 +90,17 @@ namespace EkoMon.DomainModel.Db
                 new Parameter("Осади очисних споруд") { Id = 51, CategoryId = 5, UnitId = 7, Koef = 0.7 },
                 new Parameter("Залишки від медичного та ветеринарного обслуговування") { Id = 52, CategoryId = 5, UnitId = 7, Koef = 0.8 },
                 new Parameter("Залишкові продукти інших видів діяльності") { Id = 53, CategoryId = 5, UnitId = 7, Koef = 0.6 },
-                new Parameter("Радіоактивні відходи.") { Id = 54, CategoryId = 5, UnitId = 7, Koef = 1 }
+                new Parameter("Радіоактивні відходи") { Id = 54, CategoryId = 5, UnitId = 7, Koef = 1 },
+                new Parameter("Експорт товарів та послуг") { Id = 55, CategoryId = 6, UnitId = 8 },
+                new Parameter("Імпорт товарів та послуг") { Id = 56, CategoryId = 6, UnitId = 8 },
+                new Parameter("Заробітна плата") { Id = 57, CategoryId = 6, UnitId = 8 },
+                new Parameter("Кількість людей") { Id = 58, CategoryId = 7, UnitId = 9 },
+                new Parameter("Кількість інвалідів") { Id = 59, CategoryId = 7, UnitId = 9 },
+                new Parameter("Кількість хронічних хвороб") { Id = 60, CategoryId = 7, UnitId = 9 },
+                new Parameter("Обсяги використання води") { Id = 61, CategoryId = 8, UnitId = 10 },
+                new Parameter("Обсяги використання електроенергії") { Id = 62, CategoryId = 8, UnitId = 11 },
+                new Parameter("Обсяги використання газу") { Id = 63, CategoryId = 8, UnitId = 10 },
+                new Parameter("Обсяги використання теплової енергії") { Id = 64, CategoryId = 8, UnitId = 11 }
             );
 
         }

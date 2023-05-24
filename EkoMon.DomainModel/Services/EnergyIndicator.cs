@@ -3,9 +3,9 @@ using EkoMon.DomainModel.Models;
 using Microsoft.EntityFrameworkCore;
 namespace EkoMon.DomainModel.Services
 {
-    public class EnergyIndicator : GdkIndicator
+    public class EnergyIndicator
     {
-        public const int CategoryId = 6;
+        public const int CategoryId = 8;
         private readonly EntityContext entityContext;
 
         public EnergyIndicator(EntityContext entityContext)
@@ -14,30 +14,28 @@ namespace EkoMon.DomainModel.Services
         }
 
 
-        public IndicatorModel Calculate(int locationId)
+        public IndicatorModel? Calculate(int locationId)
         {
-            var concentrationLimitTuples = new List<(double, double)>();
-            var locationParametersByCategoryId = entityContext.LocationParameters.Where(l => l.LocationId == locationId).Include(p => p.Parameter).Where(p => p.Parameter.Limit.HasValue).Where(p => p.Parameter.CategoryId == CategoryId).AsEnumerable().GroupBy(p => p.ParameterId).ToDictionary(k => k.Key, v => v.ToList());
+            var water = entityContext.LocationParameters.Where(l => l.LocationId == locationId).Where(p => p.ParameterId == 61).OrderByDescending(d => d.DateTime).ToList();
+            var electricity = entityContext.LocationParameters.Where(l => l.LocationId == locationId).Where(p => p.ParameterId == 62).OrderByDescending(d => d.DateTime).ToList();
+            var gas = entityContext.LocationParameters.Where(l => l.LocationId == locationId).Where(p => p.ParameterId == 63).OrderByDescending(d => d.DateTime).ToList();
+            var heat = entityContext.LocationParameters.Where(l => l.LocationId == locationId).Where(p => p.ParameterId == 64).OrderByDescending(d => d.DateTime).ToList();
 
-            foreach (var (_, value) in locationParametersByCategoryId)
-            {
-                var lastActual = value.OrderByDescending(d => d.DateTime).First();
-                concentrationLimitTuples.Add((lastActual.Value, lastActual.Parameter.Limit!.Value));
-            }
-
-            var pollutionIndex = CalculateIndex(concentrationLimitTuples);
-
-            var pollutionClass = DeterminePollutionClass(pollutionIndex);
+            var indexes = CalculateIndex(water, electricity, gas, heat);
 
             return new IndicatorModel()
             {
                 CategoryId = CategoryId,
-                Value = pollutionIndex,
-                Rank = pollutionClass,
+                Value = string.Join(",", indexes.Select(i=>$"{i.Key}: {i.Value:F2}")),
             };
         }
-
-
-       
+        private Dictionary<string, double> CalculateIndex(List<LocationParameter> water, List<LocationParameter> electricity, List<LocationParameter> gas, List<LocationParameter> heat)
+        {
+            var averageWater = water.Any() ? water.Average(v => v.Value) : 0;
+            var averageElectricity = electricity.Any() ? electricity.Average(v => v.Value) : 0;
+            var averageGas = gas.Any() ? gas.Average(v => v.Value) : 0;
+            var averageHeat = heat.Any() ? heat.Average(v => v.Value) : 0;
+            return new Dictionary<string, double>() { { "W", averageWater }, { "E", averageElectricity }, { "G", averageGas }, { "H", averageHeat } };
+        }
     }
 }

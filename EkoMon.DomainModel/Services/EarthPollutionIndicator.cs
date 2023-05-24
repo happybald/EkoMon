@@ -32,7 +32,7 @@ namespace EkoMon.DomainModel.Services
             return new IndicatorModel()
             {
                 CategoryId = CategoryId,
-                Value = pollutionIndex,
+                Value = pollutionIndex.ToString("F2"),
                 Rank = pollutionClass,
             };
         }

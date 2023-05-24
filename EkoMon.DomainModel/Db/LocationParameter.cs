@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-namespace EkoMon.DomainModel.Db
+﻿namespace EkoMon.DomainModel.Db
 {
     public class LocationParameter
     {

@@ -1,5 +1,4 @@
 ﻿using EkoMon.DomainModel.Db;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 namespace EkoMon.WebApp.ApiModels
 {
     public class LocationParameterModel

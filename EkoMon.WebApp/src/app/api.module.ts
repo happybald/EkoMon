@@ -728,6 +728,7 @@ export interface ILocationShortModel {
 
 export class LocationModel extends LocationShortModel implements ILocationModel {
     address!: string;
+    area!: number;
     groupedLocationParameters!: GroupedLocationParameterModel[];
     indicators!: IndicatorModel[];
 
@@ -743,6 +744,7 @@ export class LocationModel extends LocationShortModel implements ILocationModel 
         super.init(_data);
         if (_data) {
             this.address = _data["address"];
+            this.area = _data["area"];
             if (Array.isArray(_data["groupedLocationParameters"])) {
                 this.groupedLocationParameters = [] as any;
                 for (let item of _data["groupedLocationParameters"])
@@ -766,6 +768,7 @@ export class LocationModel extends LocationShortModel implements ILocationModel 
     override toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["address"] = this.address;
+        data["area"] = this.area;
         if (Array.isArray(this.groupedLocationParameters)) {
             data["groupedLocationParameters"] = [];
             for (let item of this.groupedLocationParameters)
@@ -790,6 +793,7 @@ export class LocationModel extends LocationShortModel implements ILocationModel 
 
 export interface ILocationModel extends ILocationShortModel {
     address: string;
+    area: number;
     groupedLocationParameters: GroupedLocationParameterModel[];
     indicators: IndicatorModel[];
 }
@@ -1019,7 +1023,7 @@ export interface ILocationParameterModel {
 
 export class IndicatorModel implements IIndicatorModel {
     categoryId!: number;
-    value!: number;
+    value?: string | undefined;
     rank!: IndexRank;
 
     constructor(data?: IIndicatorModel) {
@@ -1064,7 +1068,7 @@ export class IndicatorModel implements IIndicatorModel {
 
 export interface IIndicatorModel {
     categoryId: number;
-    value: number;
+    value?: string | undefined;
     rank: IndexRank;
 }
 

@@ -1,11 +1,10 @@
 ﻿using EkoMon.DomainModel.Db;
 using EkoMon.DomainModel.Models;
-using Microsoft.EntityFrameworkCore;
 namespace EkoMon.DomainModel.Services
 {
-    public class HealthIndicator : GdkIndicator
+    public class HealthIndicator
     {
-        public const int CategoryId = 6;
+        public const int CategoryId = 7;
         private readonly EntityContext entityContext;
 
         public HealthIndicator(EntityContext entityContext)
@@ -14,30 +13,49 @@ namespace EkoMon.DomainModel.Services
         }
 
 
-        public IndicatorModel Calculate(int locationId)
+        public IndicatorModel? Calculate(int locationId)
         {
-            var concentrationLimitTuples = new List<(double, double)>();
-            var locationParametersByCategoryId = entityContext.LocationParameters.Where(l => l.LocationId == locationId).Include(p => p.Parameter).Where(p => p.Parameter.Limit.HasValue).Where(p => p.Parameter.CategoryId == CategoryId).AsEnumerable().GroupBy(p => p.ParameterId).ToDictionary(k => k.Key, v => v.ToList());
+            var population = entityContext.LocationParameters.Where(l => l.LocationId == locationId).Where(p => p.ParameterId == 58).OrderByDescending(d => d.DateTime).FirstOrDefault();
+            var disabledCount = entityContext.LocationParameters.Where(l => l.LocationId == locationId).Where(p => p.ParameterId == 59).OrderByDescending(d => d.DateTime).FirstOrDefault();
+            var chronicDiseaseCount = entityContext.LocationParameters.Where(l => l.LocationId == locationId).Where(p => p.ParameterId == 60).OrderByDescending(d => d.DateTime).FirstOrDefault();
 
-            foreach (var (_, value) in locationParametersByCategoryId)
+            if (population == null && (disabledCount == null || chronicDiseaseCount == null))
             {
-                var lastActual = value.OrderByDescending(d => d.DateTime).First();
-                concentrationLimitTuples.Add((lastActual.Value, lastActual.Parameter.Limit!.Value));
+                return null;
             }
 
-            var pollutionIndex = CalculateIndex(concentrationLimitTuples);
+            double healthyCount = population!.Value;
+            if (disabledCount != null)
+                healthyCount -= disabledCount.Value;
+            if (chronicDiseaseCount != null)
+                healthyCount -= chronicDiseaseCount.Value;
+
+            double healthIndex = healthyCount / population.Value * 100;
+
+            var pollutionIndex = healthIndex;
 
             var pollutionClass = DeterminePollutionClass(pollutionIndex);
 
             return new IndicatorModel()
             {
                 CategoryId = CategoryId,
-                Value = pollutionIndex,
+                Value = pollutionIndex.ToString("F2"),
                 Rank = pollutionClass,
             };
         }
 
+        private IndexRank DeterminePollutionClass(double pollutionIndex)
+        {
+            return pollutionIndex switch
+            {
+                >= 80 => IndexRank.VeryGood,
+                >= 60 => IndexRank.Good,
+                >= 40 => IndexRank.Medium,
+                >= 20 => IndexRank.Bad,
+                _ => IndexRank.VeryBad
+            };
+        }
 
-       
+
     }
 }

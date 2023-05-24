@@ -13,15 +13,17 @@ namespace EkoMon.DomainModel.Services
             this.entityContext = entityContext;
         }
 
-        public IndicatorModel Calculate(int locationId)
+        public IndicatorModel? Calculate(int locationId)
         {
             var radiationParameter = entityContext.LocationParameters
                 .Where(l => l.LocationId == locationId)
                 .Include(p => p.Parameter)
                 .Where(p => p.Parameter.CategoryId == CategoryId)
                 .OrderByDescending(d => d.DateTime)
-                .First();
+                .FirstOrDefault();
 
+            if (radiationParameter == null)
+                return null;
             var pollutionIndex = radiationParameter.Value;
 
             var pollutionClass = DeterminePollutionClass(pollutionIndex);
@@ -29,11 +31,11 @@ namespace EkoMon.DomainModel.Services
             return new IndicatorModel()
             {
                 CategoryId = CategoryId,
-                Value = pollutionIndex,
+                Value = pollutionIndex.ToString("F2"),
                 Rank = pollutionClass,
             };
         }
-        
+
         private IndexRank DeterminePollutionClass(double pollutionIndex)
         {
             return pollutionIndex switch
@@ -48,6 +50,6 @@ namespace EkoMon.DomainModel.Services
         }
 
 
-       
+
     }
 }
