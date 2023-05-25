@@ -37,6 +37,7 @@ builder.Services.AddTransient<TrashPollutionIndicator>();
 builder.Services.AddTransient<EconomyIndicator>();
 builder.Services.AddTransient<HealthIndicator>();
 builder.Services.AddTransient<EnergyIndicator>();
+builder.Services.AddTransient<AzureOpenAIClient>();
 
 
 builder.Services.AddEndpointsApiExplorer();

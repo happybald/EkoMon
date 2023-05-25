@@ -1,9 +1,15 @@
-﻿<ng-container *ngIf="!location">
+﻿
+
+<ng-container *ngIf="!location">
     Loading...
 </ng-container>
 
 <ng-container *ngIf="location" >
+    <div class="overlay" *ngIf="showLoader">
+        <mat-spinner ></mat-spinner>
+    </div>
     <mat-dialog-content style="display: flex; flex-direction: row; gap: 8px">
+     
         <div style="display: flex; flex-direction: column; flex: 2">
             <span style="font-size: 12px; align-self: center;">{{location.latitude}}, {{location.longitude}}</span>
             <mat-form-field class="denseInput">
@@ -18,6 +24,7 @@
                 <mat-label>Area (m2)</mat-label>
                 <input matInput type="number" [(ngModel)]="location.area">
             </mat-form-field>
+            <button mat-button (click)="getAdvice()">Get Advice</button>
         </div>
         <div style="flex: 3; font-size: 14px; display: flex; flex-direction: column; justify-content: space-between; ">
             <mat-radio-group [(ngModel)]="currentCategory">

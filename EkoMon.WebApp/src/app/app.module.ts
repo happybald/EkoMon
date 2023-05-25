@@ -28,6 +28,8 @@ import {MatListModule} from "@angular/material/list";
 import {ChartDialog} from "./chart-dialog/chart-dialog.component";
 import {BarChartModule, LineChartModule, NgxChartsModule, TooltipModule} from "@swimlane/ngx-charts";
 import {DatePipe} from "@angular/common";
+import {AdviceDialog} from "./advice-dialog/advice-dialog.component";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 
 @NgModule({
@@ -58,7 +60,8 @@ import {DatePipe} from "@angular/common";
         TooltipModule,
         NgxChartsModule,
         MatListModule,
-        LineChartModule
+        LineChartModule,
+        MatProgressSpinnerModule
     ],
     declarations: [
         AppComponent,
@@ -66,6 +69,7 @@ import {DatePipe} from "@angular/common";
         InfoPopupDialog,
         MainPageComponent,
         ChartDialog,
+        AdviceDialog,
         LocationParameterDialog,
     ],
     providers: [DatePipe],

@@ -6,6 +6,7 @@ import {last, lastValueFrom} from "rxjs";
 import {LocationParameterDialog} from "../location-parameter-dialog/location-parameter-dialog.component";
 import {MatTable, MatTableDataSource} from "@angular/material/table";
 import {ChartDialog} from "../chart-dialog/chart-dialog.component";
+import {AdviceDialog} from "../advice-dialog/advice-dialog.component";
 
 @Component({
     templateUrl: './info-popup-dialog.component.html',
@@ -17,6 +18,7 @@ export class InfoPopupDialog implements OnInit {
 
     categories: ApiClientModule.CategoryModel[] = new Array<ApiClientModule.CategoryModel>();
     currentCategory?: ApiClientModule.CategoryModel;
+    showLoader: boolean = false;
 
     currentCategoryIndicator?: ApiClientModule.IndicatorModel;
 
@@ -142,6 +144,23 @@ export class InfoPopupDialog implements OnInit {
             data: locationParameters,
         } as MatDialogConfig;
         let dialogRef = this.dialog.open(ChartDialog, dialogConfig) as MatDialogRef<ChartDialog>;
+    }
+
+    async getAdvice() {
+        this.showLoader = true;
+        this.apiClient.getAdvice(this.location.id).subscribe(d => {
+            const dialogConfig = {
+                width: "800px",
+                height: "600px",
+                closeOnNavigation: false,
+                disableClose: true,
+                data: d,
+            } as MatDialogConfig;
+            let dialogRef = this.dialog.open(AdviceDialog, dialogConfig) as MatDialogRef<AdviceDialog>;
+            this.showLoader = false;
+        })
+
+
     }
 }
 

@@ -20,7 +20,8 @@ namespace EkoMon.WebApp.Controllers
         private readonly EconomyIndicator economyIndicator;
         private readonly HealthIndicator healthIndicator;
         private readonly EnergyIndicator energyIndicator;
-        public ApiController(EntityContext context, AirPollutionIndicator airPollutionIndicator, WaterPollutionIndicator waterPollutionIndicator, EarthPollutionIndicator earthPollutionIndicator, RadiationPollutionIndicator radiationPollutionIndicator, TrashPollutionIndicator trashPollutionIndicator, EconomyIndicator economyIndicator, HealthIndicator healthIndicator, EnergyIndicator energyIndicator)
+        private readonly AzureOpenAIClient azureOpenAiClient;
+        public ApiController(EntityContext context, AirPollutionIndicator airPollutionIndicator, WaterPollutionIndicator waterPollutionIndicator, EarthPollutionIndicator earthPollutionIndicator, RadiationPollutionIndicator radiationPollutionIndicator, TrashPollutionIndicator trashPollutionIndicator, EconomyIndicator economyIndicator, HealthIndicator healthIndicator, EnergyIndicator energyIndicator, AzureOpenAIClient azureOpenAiClient)
         {
             this.context = context;
             this.airPollutionIndicator = airPollutionIndicator;
@@ -31,6 +32,7 @@ namespace EkoMon.WebApp.Controllers
             this.economyIndicator = economyIndicator;
             this.healthIndicator = healthIndicator;
             this.energyIndicator = energyIndicator;
+            this.azureOpenAiClient = azureOpenAiClient;
         }
 
         [HttpGet]
@@ -346,6 +348,95 @@ namespace EkoMon.WebApp.Controllers
         public async Task<ActionResult<List<UnitModel>>> GetUnits()
         {
             return await context.Units.Select(p => new UnitModel(p)).ToListAsync();
+        }
+
+        
+        [HttpGet("{locationId}")] 
+        public async Task<string> GetAdvice(int locationId)
+        {
+            var location = await context.Locations.Include(l => l.LocationParameters).ThenInclude(p => p.Parameter).ThenInclude(u => u.Unit).FirstOrDefaultAsync(i => i.Id == locationId);
+            var categoryNameById = context.Categories.AsEnumerable().ToDictionary(k => k.Id, v => v.Title);
+            if (location == null)
+                return null;
+
+            var indicators = CalculateIndicators(location);
+            
+            var text = @"Мій обєкт: {{LocationName}}
+Мої індекси:
+{{Indexes}}
+
+Обери мені можливі заходи, які можна використати щоб покращити показники індексів на моєму обєкті, використвоючи список захоів наведений нище.
+Можливо вигадай свої варіанти.
+Також додай можливий бюджет у тисячах гривень до обраних заходів, якщо бюджет обєкту становить {{Money}} тисяч гривень.
+Не обовязково робити для кожного індексу, надай пріорітети найгіршим.
+
+**Початок списку заходів**
+
+Заходи щодо Атмосферного повітря:
+1. мінімізацію та запобігання викидів шкідливих речовин в атмосферу шляхом застосування промисловими підприємствами екологічних фільтрів;
+2. перехід на експлуатацію екологічного транспорту та побутової техніки;
+3. контрольована утилізація сміття, особливо це стосується спалення побутових відходів;
+3. впровадження комплексних «зелених» альтернатив, які б були корисні не лише для повітря, а і для здоров’я людини (наприклад, мотивувати людей використовувати велосипеди, оскільки це корисно і для екології, і для самопочуття);
+4. розробка екологічно орієнтованого законодавства та програми.
+
+Енергетичні заходи:
+1. забезпечення належного рівня енергетичної ефективності будівель відповідно до технічних регламентів, норм і правил та будівельних норм;
+2. стимулювання зменшення споживання енергії у будівлях;
+3. забезпечення скорочення викидів парникових газів у атмосферу;
+4. створення умов для залучення інвестицій з метою здійснення енергоефективних заходів;
+5. забезпечення термомодернізації будівель, стимулювання використання відновлюваних джерел енергії;
+6. розроблення та реалізація національного плану щодо збільшення кількості будівель з близьким до нульового рівнем споживання енергії та стратегії термомодернізації будівель;
+7. стимулювання до збільшення кількості будівель з близьким до нульового рівнем споживання енергії, зокрема шляхом нового будівництва та термомодернізації будівель.
+
+Заходи щодо грунтів:
+1. Зміна погляду на ґрунт.
+2. Оптимізація обробітку ґрунту.
+3. Планування сівозмін.
+4. Застосування сидератів та багаторічних трав.
+5. Застосування біологічних препаратів для захисту рослин.
+6. Внесення гноєвих компостів.
+7. Відновлення полезахисних лісосмуг.
+8. Використання сільськогосподарських угідь згідно технологічних груп земель залежно від крутизни схилів.
+9. Робота з ґрунтами в комплексі.
+10. Робота з рослинними рештками.
+
+Заходи щодо водних ресурсів:
+1. запровадження інтегрованого управління водними ресурсами, 
+2. прискорення переходу до управління водокористуванням за басейним принципом; 
+3. поліпшення екологічного стану річок та підземних вод України, якості питної води.
+4. будівництво очисних споруд для очищення зливових стоків і талих вод;
+5. забезпечення ефективної діяльності гідротехнічних споруд;
+6. впорядкування  та розчищення русла річки;
+7. припинення несанкціонованого скидання каналізаційно-побутових стоків з прилеглої території приватної забудови та скидів зливових вод з території підприємств без очистки;
+8. контроль за дотриманням природоохоронного законодавства  у водоохоронній зоні річки та впорядкування прибережної території та річкової заплави.
+
+Заходи щодо відходів:
+1. відмовитися від поліетиленових пакетів – екологічно та економічно;
+2. відмовитися від одноразових пляшок та посуду;
+3. сортувати сміття і віддавати на переробку;
+**Кінець списку заходів**
+";
+            text = text.Replace("{{LocationName}}", location.Title);
+            var indexesText = string.Join(";\n", indicators.Select(t => $"{categoryNameById[t.CategoryId]}: {t.Value}({GetRankUkrString(t.Rank)})"));
+            text = text.Replace("{{Indexes}}", indexesText);
+            text = text.Replace("{{Money}}", $"{100}");
+
+            string GetRankUkrString(IndexRank indexRank)
+            {
+                return indexRank switch
+                {
+                    IndexRank.VeryBad => "Дуже погано",
+                    IndexRank.Bad => "Погано",
+                    IndexRank.Medium => "Середньо",
+                    IndexRank.Good => "Добре",
+                    IndexRank.VeryGood => "Дуже добре",
+                    _ => throw new ArgumentOutOfRangeException(nameof(indexRank), indexRank, null)
+                };
+            }
+
+            var response = await azureOpenAiClient.GetResponse(text);
+            return response;
+
         }
     }
 }
