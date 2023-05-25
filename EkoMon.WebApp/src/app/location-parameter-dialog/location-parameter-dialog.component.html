@@ -4,6 +4,7 @@
 
 <ng-container *ngIf="locationParameterClone">
     <mat-dialog-content style="height: 100%">
+        <span>{{currentCategory()?.title}}</span>
         <ng-select [items]="parameters"
                    bindLabel="title"
                    [addTag]="addParameter"
@@ -16,6 +17,7 @@
                 <mat-label>Value</mat-label>
                 <input matInput type="number" placeholder="Value" [(ngModel)]="locationParameterClone.value">
             </mat-form-field>
+            <p style="flex:1;" *ngIf="locationParameterClone?.parameter?.limit">Limit: {{locationParameterClone?.parameter?.limit}}</p>
 
             <div style="flex:1;">
                 <ng-select *ngIf="locationParameterClone.parameter.id == 0" [items]="units"

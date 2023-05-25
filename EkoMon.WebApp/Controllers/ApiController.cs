@@ -1,6 +1,7 @@
 ﻿using EkoMon.DomainModel.Db;
 using EkoMon.DomainModel.Models;
 using EkoMon.DomainModel.Services;
+using EkoMon.DomainModel.Services;
 using EkoMon.WebApp.ApiModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -307,6 +308,7 @@ namespace EkoMon.WebApp.Controllers
 
             dbLocation.Title = location.Title;
             dbLocation.Address = location.Address;
+            dbLocation.Area = location.Area;
             dbLocation.Latitude = location.Latitude;
             dbLocation.Longitude = location.Longitude;
 

@@ -14,6 +14,10 @@
                 <mat-label>Address</mat-label>
                 <input matInput [(ngModel)]="location.address">
             </mat-form-field>
+            <mat-form-field class="denseInput">
+                <mat-label>Area (m2)</mat-label>
+                <input matInput type="number" [(ngModel)]="location.area">
+            </mat-form-field>
         </div>
         <div style="flex: 3; font-size: 14px; display: flex; flex-direction: column; justify-content: space-between; ">
             <mat-radio-group [(ngModel)]="currentCategory">

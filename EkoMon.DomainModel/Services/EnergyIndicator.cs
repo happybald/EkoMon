@@ -27,6 +27,7 @@ namespace EkoMon.DomainModel.Services
             {
                 CategoryId = CategoryId,
                 Value = string.Join(",", indexes.Select(i=>$"{i.Key}: {i.Value:F2}")),
+                Rank = IndexRank.Medium,
             };
         }
         private Dictionary<string, double> CalculateIndex(List<LocationParameter> water, List<LocationParameter> electricity, List<LocationParameter> gas, List<LocationParameter> heat)

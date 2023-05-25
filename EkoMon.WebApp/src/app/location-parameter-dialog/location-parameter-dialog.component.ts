@@ -2,6 +2,7 @@
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {ApiClientModule} from "../api.module";
 import {lastValueFrom} from "rxjs";
+import LocationParameterModel = ApiClientModule.LocationParameterModel;
 
 
 @Component({
@@ -12,13 +13,17 @@ export class LocationParameterDialog implements OnInit {
 
     locationParameterClone: ApiClientModule.LocationParameterModel = null!;
     parameters: ApiClientModule.ParameterModel[] = null!;
+    categories : ApiClientModule.CategoryModel[] = null!;
     units: ApiClientModule.UnitModel[] = null!;
+    
+    currentCategory = (): ApiClientModule.CategoryModel | undefined => this.categories.find(i=>i.id == this.locationParameterClone.parameter.id);
 
     constructor(private dialogRef: MatDialogRef<LocationParameterDialog>, @Inject(MAT_DIALOG_DATA) public data: ApiClientModule.LocationParameterModel, private apiClient: ApiClientModule.ApiClient) {
     }
 
     async ngOnInit(): Promise<void> {
         this.parameters = await lastValueFrom(this.apiClient.getParameters());
+        this.categories = await lastValueFrom(this.apiClient.getCategories());
         this.units = await lastValueFrom(this.apiClient.getUnits());
         this.locationParameterClone = this.data.clone();
     }
